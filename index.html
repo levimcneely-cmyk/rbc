@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Redeemer Staff Retreat</title>
+<meta name="theme-color" content="#3F4E4A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <span class="topbar__mark">Redeemer</span>
+  <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<nav class="navsheet" id="navSheet" aria-hidden="true">
+  <ul>
+    <li><a href="#home" data-view="home">Home</a></li>
+    <li><a href="#worship" data-view="worship">Worship</a></li>
+    <li><a href="#cup" data-view="cup">Redeemer Cup</a></li>
+  </ul>
+</nav>
+<div class="scrim" id="scrim"></div>
+
+<main id="app">
+
+  <!-- HOME -->
+  <section class="view" id="view-home">
+    <div class="hero">
+      <svg class="hero__art" viewBox="0 0 400 160" preserveAspectRatio="none" aria-hidden="true">
+        <polyline points="0,120 60,80 110,110 170,55 230,100 290,65 340,105 400,85 400,160 0,160" fill="var(--moss)" opacity="0.35"></polyline>
+        <polyline points="0,140 80,105 140,130 200,95 260,125 330,100 400,120 400,160 0,160" fill="var(--pine)" opacity="0.55"></polyline>
+        <circle cx="335" cy="40" r="22" fill="var(--gold)" opacity="0.8"></circle>
+      </svg>
+      <div class="hero__text">
+        <p class="hero__eyebrow">Staff Retreat</p>
+        <h1 class="hero__title">Away&nbsp;Together</h1>
+        <p class="hero__dates" id="retreatDates">September 10–12, 2026</p>
+        <p class="hero__location" id="retreatLocation">Country Lake Christian Retreat</p>
+      </div>
+    </div>
+
+    <h2 class="section-title">Agenda</h2>
+
+    <div class="daytabs" id="dayTabs" role="tablist"></div>
+    <div class="timeline" id="agendaList"></div>
+
+    <button class="accordion-trigger" id="packingToggle" aria-expanded="false">
+      <span>What to Bring</span>
+      <span class="accordion-trigger__icon">+</span>
+    </button>
+    <div class="accordion-body" id="packingBody" hidden></div>
+
+  </section>
+
+  <!-- WORSHIP -->
+  <section class="view" id="view-worship" hidden>
+    <h2 class="section-title section-title--top">Worship</h2>
+    <p class="section-hint">Tap a song to see the lyrics.</p>
+    <div id="worshipList"></div>
+  </section>
+
+  <!-- REDEEMER CUP -->
+  <section class="view" id="view-cup" hidden>
+    <h2 class="section-title section-title--top">Redeemer Cup</h2>
+    <p class="section-hint" id="cupStatus">Loading standings…</p>
+
+    <div class="cup-board" id="overallBoard"></div>
+
+    <h3 class="section-subtitle">Events</h3>
+    <div id="eventsList"></div>
+  </section>
+
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
