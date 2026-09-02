@@ -163,6 +163,15 @@ function pointsForPlace(place){
   return idx < table.length ? table[idx] : table[table.length - 1];
 }
 
+// Converts a Google Drive "share" link into a URL that actually renders
+// as an image in an <img> tag (the sharing link itself is an HTML page).
+function driveImageUrl(shareUrl){
+  const match = (shareUrl || '').match(/\/d\/([a-zA-Z0-9_-]+)/) ||
+                (shareUrl || '').match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (!match) return null;
+  return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+}
+
 async function loadCup(){
   const statusEl = document.getElementById('cupStatus');
   const boardEl = document.getElementById('overallBoard');
@@ -176,14 +185,18 @@ async function loadCup(){
     boardEl.innerHTML = '';
     eventsEl.innerHTML = `<p class="empty-note">Connect your Google Sheet to see standings here —
       add the two published CSV links in js/data.js (see README.md).</p>`;
+    document.getElementById('historyList').innerHTML = '';
     cupLoaded = true;
     return;
   }
 
   try {
-    const [teamsRows, resultsRows] = await Promise.all([
+    const [teamsRows, resultsRows, historyRows] = await Promise.all([
       fetchCsv(CONFIG.teamsCsvUrl),
-      fetchCsv(CONFIG.resultsCsvUrl)
+      fetchCsv(CONFIG.resultsCsvUrl),
+      CONFIG.historyCsvUrl && CONFIG.historyCsvUrl.startsWith('http')
+        ? fetchCsv(CONFIG.historyCsvUrl).catch(() => [])
+        : Promise.resolve([])
     ]);
 
     // Roster: team -> [members]
@@ -255,6 +268,29 @@ async function loadCup(){
         document.getElementById('event-body-' + btn.dataset.i).classList.toggle('open');
       });
     });
+
+    const historyEl = document.getElementById('historyList');
+    const historyItems = historyRows
+      .filter(r => r.year)
+      .sort((a, b) => Number(b.year) - Number(a.year));
+
+    if (!historyItems.length){
+      historyEl.innerHTML = '<p class="empty-note">No past winners posted yet.</p>';
+    } else {
+      historyEl.innerHTML = historyItems.map(r => {
+        const imgUrl = driveImageUrl(r.url);
+        const img = imgUrl
+          ? `<img class="history-card__img" src="${imgUrl}" alt="${r.year} Redeemer Cup winners" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('p'),{className:'empty-note',textContent:'Photo couldn\\'t be loaded.'}))">`
+          : `<p class="empty-note">No photo linked for this year.</p>`;
+        return `
+          <div class="history-card">
+            <div class="history-card__year">${r.year}</div>
+            ${img}
+            ${r.winners ? `<div class="history-card__caption">${r.winners}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
 
     cupLoaded = true;
   } catch (err){
