@@ -214,6 +214,22 @@ body{ overflow-x: hidden; }
 
 .empty-note{ font-size:14px; color: var(--ink-soft); padding: 10px 2px 20px; }
 
+/* ---------- Past Winners (history) ---------- */
+.history-card{
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--card);
+  margin-bottom: 16px; overflow:hidden;
+}
+.history-card__year{
+  font-family: var(--font-display); font-size:16px; font-weight:600; color:#fff;
+  background: var(--teal); padding: 10px 16px;
+}
+.history-card__img{
+  display:block; width:100%; height:auto; background: var(--line);
+}
+.history-card__caption{
+  padding: 10px 16px; font-size:14px; color: var(--ink-soft);
+}
+
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce){
   *{ transition: none !important; }
