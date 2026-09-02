@@ -77,7 +77,7 @@ const CONFIG = {
 
   // Points awarded for each finishing place, by index (1st, 2nd, 3rd...).
   // Any place beyond this list earns the last value.
-  pointsByPlace: [10, 8, 6, 4, 2],
+  pointsByPlace: [5, 3, 2, 1, 0],
 
   eventNames: ["Event 1", "Event 2", "Event 3", "Event 4"]
 };
