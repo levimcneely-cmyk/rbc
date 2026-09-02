@@ -16,7 +16,7 @@
 <body>
 
 <header class="topbar">
-  <span class="topbar__mark">Redeemer</span>
+  <img class="topbar__logo" src="logo.png" alt="Redeemer Bible Church">
   <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
@@ -36,16 +36,20 @@
   <!-- HOME -->
   <section class="view" id="view-home">
     <div class="hero">
-      <svg class="hero__art" viewBox="0 0 400 160" preserveAspectRatio="none" aria-hidden="true">
-        <polyline points="0,120 60,80 110,110 170,55 230,100 290,65 340,105 400,85 400,160 0,160" fill="var(--moss)" opacity="0.35"></polyline>
-        <polyline points="0,140 80,105 140,130 200,95 260,125 330,100 400,120 400,160 0,160" fill="var(--pine)" opacity="0.55"></polyline>
-        <circle cx="335" cy="40" r="22" fill="var(--gold)" opacity="0.8"></circle>
+      <svg class="hero__art" viewBox="0 0 400 200" preserveAspectRatio="none" aria-hidden="true">
+        <circle cx="322" cy="46" r="42" fill="var(--sun)" opacity="0.14"></circle>
+        <circle cx="322" cy="46" r="24" fill="var(--sun)" opacity="0.9"></circle>
+        <polyline points="0,130 50,95 100,120 150,80 210,115 260,75 320,110 370,90 400,100 400,200 0,200" fill="#fff" opacity="0.12"></polyline>
+        <polyline points="0,155 60,125 120,150 180,110 240,145 300,120 350,140 400,128 400,200 0,200" fill="#000" opacity="0.20"></polyline>
       </svg>
       <div class="hero__text">
         <p class="hero__eyebrow">Staff Retreat</p>
-        <h1 class="hero__title">Away&nbsp;Together</h1>
-        <p class="hero__dates" id="retreatDates">September 10–12, 2026</p>
-        <p class="hero__location" id="retreatLocation">Country Lake Christian Retreat</p>
+        <h1 class="hero__title">Away <span class="hero__title-accent">Together</span></h1>
+        <div class="hero__meta">
+          <span id="retreatDates">September 10–12, 2026</span>
+          <span class="hero__meta-dot">•</span>
+          <span id="retreatLocation">Country Lake Christian Retreat</span>
+        </div>
       </div>
     </div>
 
