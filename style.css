@@ -17,7 +17,6 @@
   --card:   #FFFFFF;   /* card surfaces */
   --line:   #E2E5E3;   /* hairline borders */
   --ink-soft: #5C6462; /* secondary text on paper */
-  --sun:    #F0E9D8;   /* soft warm cream — the header's one warm accent (sun + title highlight) */
 
   /* --- Type ---
      Their wordmark is a bold, geometric all-caps sans (no serif anywhere
@@ -95,21 +94,14 @@ body{ overflow-x: hidden; }
   left: 50%;
   width: 100vw;
   transform: translateX(-50%);
-  overflow:hidden;
   background: var(--teal);
-  padding: 40px 20px 56px;
+  padding: 36px 20px 32px;
   border-radius: 0 0 28px 28px;
 }
-.hero__art{ position:absolute; inset:0; width:100%; height:100%; }
-.hero__text{ position:relative; z-index:1; max-width:520px; margin:0 auto; }
-.hero__eyebrow{
-  margin:0 0 8px; font-size:13px; letter-spacing:0.08em; text-transform:uppercase;
-  color: rgba(255,255,255,0.7); font-weight:600;
-}
+.hero__text{ max-width:520px; margin:0 auto; }
 .hero__title{
-  font-size: 42px; line-height:1.08; font-weight:700; color:#fff;
+  font-size: 32px; line-height:1.15; font-weight:700; color:#fff;
 }
-.hero__title-accent{ color: var(--sun); }
 .hero__meta{
   display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap;
   margin-top: 16px; padding: 7px 16px; border-radius:999px;
