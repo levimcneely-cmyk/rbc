@@ -1,0 +1,227 @@
+/* ============================================================
+   REDEEMER STAFF RETREAT — theme tokens
+   Swap these to match Redeemer Bible Church's real brand kit.
+   Everything below reads from these variables, so changing the
+   values here re-themes the whole app.
+   ============================================================ */
+:root{
+  /* --- Color ---
+     Matched from an actual screenshot of redeemerbible.church: a dark
+     slate-teal (their footer/nav color) paired with black and white —
+     no serif, no warm accent. Swap these if staff hands you exact hex. */
+  --pine:   #17181B;   /* near-black — body text on light backgrounds (matches their logo) */
+  --teal:   #3F4E4B;   /* dark slate-teal — their brand's dark surface color (nav, footer) */
+  --paper:  #FFFFFF;   /* clean white — page background */
+  --moss:   #6B7573;   /* teal-tinted gray — secondary text, dividers */
+  --gold:   #5E7873;   /* lighter teal — the one accent, used sparingly (highlights, 1st place) */
+  --card:   #FFFFFF;   /* card surfaces */
+  --line:   #E2E5E3;   /* hairline borders */
+  --ink-soft: #5C6462; /* secondary text on paper */
+
+  /* --- Type ---
+     Their wordmark is a bold, geometric all-caps sans (no serif anywhere
+     on the site) — Poppins is the closest clean match for that display
+     role; Inter stays for body copy since it reads better at length. */
+  --font-display: "Poppins", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --radius: 14px;
+}
+
+*{ box-sizing: border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  background: var(--paper);
+  color: var(--pine);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: 48px;
+}
+h1,h2,h3{ font-family: var(--font-display); margin: 0; }
+a{ color: inherit; }
+
+/* ---------- Top bar & hamburger ---------- */
+.topbar{
+  position: sticky; top:0; z-index: 20;
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 14px 20px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+.topbar__mark{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pine);
+}
+.menu-btn{
+  width:34px; height:34px;
+  border:none; background:transparent;
+  display:flex; flex-direction:column; justify-content:center; gap:5px;
+  cursor:pointer; padding:0;
+}
+.menu-btn span{
+  display:block; height:2px; width:100%;
+  background: var(--pine); border-radius: 2px;
+  transition: transform .2s ease, opacity .2s ease;
+}
+.menu-btn[aria-expanded="true"] span:nth-child(1){ transform: translateY(7px) rotate(45deg); }
+.menu-btn[aria-expanded="true"] span:nth-child(2){ opacity:0; }
+.menu-btn[aria-expanded="true"] span:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
+
+.navsheet{
+  position: fixed; top:0; right:-260px; height:100%; width:240px;
+  background: var(--teal); color:#fff; z-index: 30;
+  padding: 90px 28px 28px;
+  transition: right .28s ease;
+}
+.navsheet.open{ right:0; }
+.navsheet ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:26px; }
+.navsheet a{
+  font-family: var(--font-display); font-size:22px; text-decoration:none; color:#fff;
+}
+.navsheet a.active{ color: var(--gold); }
+.scrim{
+  position:fixed; inset:0; background: rgba(20,26,20,.35);
+  opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:25;
+}
+.scrim.open{ opacity:1; pointer-events:auto; }
+
+/* ---------- Layout ---------- */
+main{ max-width: 560px; margin: 0 auto; padding: 0 20px; }
+.view[hidden]{ display:none; }
+
+/* ---------- Hero ---------- */
+.hero{
+  position:relative; overflow:hidden;
+  margin: 18px 0 6px; padding: 34px 22px 26px;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+.hero__art{ position:absolute; left:0; bottom:0; width:100%; height:100px; }
+.hero__text{ position:relative; }
+.hero__eyebrow{
+  margin:0 0 4px; font-size:14px; color: var(--moss); font-weight:600;
+}
+.hero__title{
+  font-size: 40px; line-height:1.05; font-weight:700; color: var(--pine);
+}
+.hero__dates{
+  margin: 10px 0 0; font-size:15px; color: var(--ink-soft);
+}
+.hero__location{
+  margin: 2px 0 0; font-size:15px; color: var(--ink-soft);
+}
+
+/* ---------- Section titles ---------- */
+.section-title{
+  font-size: 22px; margin: 30px 0 14px; color: var(--pine);
+}
+.section-title--top{ margin-top: 22px; }
+.section-subtitle{
+  font-family: var(--font-display); font-size:18px; margin: 30px 0 12px; color: var(--pine);
+}
+.section-hint{ margin: -6px 0 18px; font-size:14px; color: var(--ink-soft); }
+
+/* ---------- Day tabs ---------- */
+.daytabs{ display:flex; gap:8px; margin-bottom: 16px; }
+.daytabs button{
+  flex:1; padding:9px 0; border-radius: 999px; border:1px solid var(--line);
+  background: var(--card); color: var(--ink-soft); font-family: var(--font-body);
+  font-weight:600; font-size:14px; cursor:pointer;
+}
+.daytabs button.active{ background: var(--pine); color:#fff; border-color: var(--pine); }
+
+/* ---------- Timeline (agenda) ---------- */
+.timeline{ position:relative; padding-left: 22px; margin-bottom: 8px; }
+.timeline::before{
+  content:""; position:absolute; left:6px; top:6px; bottom:6px; width:2px;
+  background: var(--line);
+}
+.timeline__item{ position:relative; padding-bottom: 20px; }
+.timeline__item::before{
+  content:""; position:absolute; left:-22px; top:4px; width:10px; height:10px;
+  border-radius:50%; background: var(--gold); border:2px solid var(--paper);
+}
+.timeline__time{ font-size:13px; font-weight:600; color: var(--moss); }
+.timeline__title{ font-size:16px; font-weight:600; margin-top:2px; }
+.timeline__note{ font-size:14px; color: var(--ink-soft); margin-top:2px; }
+
+/* ---------- Accordion (shared: packing + worship) ---------- */
+.accordion-trigger{
+  width:100%; display:flex; justify-content:space-between; align-items:center;
+  padding: 14px 4px; margin-top: 10px;
+  background:none; border:none; border-top: 1px solid var(--line);
+  font-family: var(--font-display); font-size:18px; color: var(--pine);
+  cursor:pointer; text-align:left;
+}
+.accordion-trigger__icon{ font-size:20px; color: var(--moss); transition: transform .2s ease; }
+.accordion-trigger[aria-expanded="true"] .accordion-trigger__icon{ transform: rotate(45deg); }
+.accordion-body{ padding: 4px 4px 20px; }
+.accordion-body h4{
+  font-family: var(--font-body); font-size:13px; text-transform: none;
+  color: var(--moss); font-weight:600; margin: 14px 0 6px;
+}
+.accordion-body ul{ margin:0; padding-left: 18px; }
+.accordion-body li{ margin-bottom:6px; font-size:15px; }
+.weather-note{
+  margin-top:14px; padding:12px 14px; border-radius:10px;
+  background: rgba(181,137,43,0.12); font-size:14px; color: var(--pine);
+}
+
+/* ---------- Worship ---------- */
+.song{ border-top: 1px solid var(--line); }
+.song:last-child{ border-bottom: 1px solid var(--line); }
+.song__head{
+  width:100%; display:flex; justify-content:space-between; align-items:center;
+  padding: 16px 4px; background:none; border:none; text-align:left; cursor:pointer;
+}
+.song__title{ font-family: var(--font-display); font-size:18px; color: var(--pine); }
+.song__icon{ font-size:20px; color: var(--moss); transition: transform .2s ease; }
+.song__head[aria-expanded="true"] .song__icon{ transform: rotate(45deg); }
+.song__lyrics{ padding: 0 4px 20px; font-size:16px; line-height:1.7; white-space: pre-line; color: var(--pine); }
+
+/* ---------- Redeemer Cup ---------- */
+.cup-board{
+  border: 1px solid var(--line); border-radius: var(--radius); overflow:hidden; background: var(--card);
+}
+.cup-row{
+  display:flex; align-items:center; gap:12px; padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.cup-row:last-child{ border-bottom:none; }
+.cup-rank{
+  font-family: var(--font-display); font-size:18px; font-weight:600;
+  width: 24px; color: var(--ink-soft);
+}
+.cup-row--1 .cup-rank{ color: var(--gold); }
+.cup-team{ flex:1; font-weight:600; font-size:16px; }
+.cup-points{ font-size:15px; color: var(--moss); font-weight:600; }
+.cup-roster{ padding: 0 16px 14px 52px; font-size:14px; color: var(--ink-soft); display:none; }
+.cup-roster.open{ display:block; }
+
+.event-card{
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--card);
+  margin-bottom: 14px; overflow:hidden;
+}
+.event-card__head{
+  width:100%; display:flex; justify-content:space-between; align-items:center;
+  padding: 14px 16px; background:none; border:none; cursor:pointer; text-align:left;
+}
+.event-card__title{ font-family: var(--font-display); font-size:17px; color: var(--pine); }
+.event-card__icon{ font-size:18px; color: var(--moss); transition: transform .2s ease; }
+.event-card__head[aria-expanded="true"] .event-card__icon{ transform: rotate(45deg); }
+.event-card__body{ padding: 0 16px 14px; display:none; }
+.event-card__body.open{ display:block; }
+.event-row{ display:flex; justify-content:space-between; padding:6px 0; font-size:15px; border-top:1px solid var(--line); }
+.event-row:first-child{ border-top:none; }
+
+.empty-note{ font-size:14px; color: var(--ink-soft); padding: 10px 2px 20px; }
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  *{ transition: none !important; }
+}
