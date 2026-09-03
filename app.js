@@ -84,6 +84,10 @@ dayTabsEl.querySelectorAll('button').forEach(btn => {
 });
 renderAgenda(dayNames[0]);
 
+document.getElementById('speakersList').innerHTML = SPEAKERS.map(s => `
+  <p class="speakers__line"><span class="speakers__role">${s.role}</span> ${s.name}</p>
+`).join('');
+
 const packingToggle = document.getElementById('packingToggle');
 const packingBody = document.getElementById('packingBody');
 packingBody.innerHTML = `
