@@ -16,17 +16,17 @@ const AGENDA = {
     { time: "6:00 – 6:05 PM", title: "Welcome" },
     { time: "6:05 – 7:00 PM", title: "Dinner" },
     { time: "7:00 – 8:30 PM", title: "Worship / Teaching" },
-    { time: "8:30 – 10:00 PM", title: "Event 1 / Hang" }
+    { time: "8:30 – 10:00 PM", eventRef: 1, suffix: " / Hang" }
   ],
   Friday: [
     { time: "8:00 – 9:00 AM", title: "Breakfast" },
     { time: "9:00 – 10:30 AM", title: "Worship / Teaching" },
-    { time: "10:45 – 11:45 AM", title: "Event 2" },
+    { time: "10:45 – 11:45 AM", eventRef: 2 },
     { time: "12:00 – 1:00 PM", title: "Lunch" },
-    { time: "1:30 – 2:30 PM", title: "Event 3" },
+    { time: "1:30 – 2:30 PM", eventRef: 3 },
     { time: "2:30 – 6:30 PM", title: "Relax — Lake / Hike / Sports" },
     { time: "6:30 – 7:30 PM", title: "Dinner" },
-    { time: "7:30 – 10:00 PM", title: "Event 4 / Bonfire" }
+    { time: "7:30 – 10:00 PM", eventRef: 4, suffix: " / Bonfire" }
   ],
   Saturday: [
     { time: "8:00 – 9:00 AM", title: "Breakfast / Award Ceremony" },
