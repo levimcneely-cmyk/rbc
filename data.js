@@ -55,14 +55,11 @@ const PACKING = {
   ]
 };
 
-/* Placeholder songs — replace with the real setlist.
-   Use \n for line breaks within a verse/chorus. */
-const WORSHIP_SONGS = [
-  {
-    title: "Song Title Goes Here",
-    lyrics: "Verse 1\nLyrics will go here once you send them over.\n\nChorus\nSame idea — just replace this text in js/data.js."
-  }
-];
+/* Add the real setlist here — one object per song.
+   Use \n for line breaks within a verse/chorus.
+   Until this is filled in, the Worship page just shows
+   "Setlist coming soon" instead of a placeholder song. */
+const WORSHIP_SONGS = [];
 
 /* ============================================================
    CONFIG — Redeemer Cup data source
