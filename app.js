@@ -267,22 +267,22 @@ function renderCup(teamsRows, resultsRows, historyRows, { fromCache } = {}){
     rosterEl.innerHTML = '<p class="empty-note">No teams posted yet.</p>';
   } else {
     rosterEl.innerHTML = teamNames.map((team, i) => `
-      <div class="song">
-        <button class="song__head" aria-expanded="false" data-i="roster-${i}">
-          <span class="song__title">${team}</span>
-          <span class="song__icon">+</span>
+      <div class="event-card">
+        <button class="event-card__head" aria-expanded="false" data-i="roster-${i}">
+          <span class="event-card__title">${team}</span>
+          <span class="event-card__icon">+</span>
         </button>
-        <div class="roster-grid" id="lyrics-roster-${i}" hidden>
+        <div class="event-card__body roster-grid" id="event-body-roster-${i}">
           ${(roster[team] || []).map(m => `<span>${m}</span>`).join('') || '<span>Roster coming soon</span>'}
         </div>
       </div>
     `).join('');
 
-    rosterEl.querySelectorAll('.song__head').forEach(btn => {
+    rosterEl.querySelectorAll('.event-card__head').forEach(btn => {
       btn.addEventListener('click', () => {
         const open = btn.getAttribute('aria-expanded') === 'true';
         btn.setAttribute('aria-expanded', String(!open));
-        document.getElementById('lyrics-' + btn.dataset.i).hidden = open;
+        document.getElementById('event-body-' + btn.dataset.i).classList.toggle('open');
       });
     });
   }
