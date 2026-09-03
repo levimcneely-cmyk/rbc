@@ -35,6 +35,11 @@ const AGENDA = {
   ]
 };
 
+const SPEAKERS = [
+  { role: "Teaching", name: "Norm Millar" },
+  { role: "Worship", name: "Nick & Jill Tynan" }
+];
+
 const PACKING = {
   weather: "Forecast as of today: low 72° / high 90°, sunny — but pack a raincoat just in case!",
   attire: [
