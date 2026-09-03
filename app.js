@@ -225,24 +225,34 @@ function renderCup(teamsRows, resultsRows, historyRows, { fromCache } = {}){
     });
   });
 
-  eventsEl.innerHTML = CONFIG.eventNames.map((name, i) => {
-    const placements = byEvent[name] || byEvent[String(i + 1)] || {};
-    const rows = Object.entries(placements)
-      .sort((a, b) => Number(a[1]) - Number(b[1]))
-      .map(([team, place]) => `<div class="event-row"><span>${team}</span><span>${place}</span></div>`)
-      .join('');
-    return `
-      <div class="event-card">
-        <button class="event-card__head" aria-expanded="false" data-i="${i}">
-          <span class="event-card__title">${name}</span>
-          <span class="event-card__icon">+</span>
-        </button>
-        <div class="event-card__body" id="event-body-${i}">
-          ${rows || '<p class="empty-note">No results posted yet.</p>'}
-        </div>
-      </div>
-    `;
-  }).join('');
+  // Event names come straight from whatever's typed in the sheet's
+  // "Event" column — in the order they first appear, so "Event 1" shows
+  // before "Event 2" as long as that's the order rows were entered.
+  const eventNames = [];
+  resultsRows.forEach(r => {
+    if (r.event && !eventNames.includes(r.event)) eventNames.push(r.event);
+  });
+
+  eventsEl.innerHTML = eventNames.length
+    ? eventNames.map((name, i) => {
+        const placements = byEvent[name] || {};
+        const rows = Object.entries(placements)
+          .sort((a, b) => Number(a[1]) - Number(b[1]))
+          .map(([team, place]) => `<div class="event-row"><span>${team}</span><span>${place}</span></div>`)
+          .join('');
+        return `
+          <div class="event-card">
+            <button class="event-card__head" aria-expanded="false" data-i="${i}">
+              <span class="event-card__title">${name}</span>
+              <span class="event-card__icon">+</span>
+            </button>
+            <div class="event-card__body" id="event-body-${i}">
+              ${rows || '<p class="empty-note">No results posted yet.</p>'}
+            </div>
+          </div>
+        `;
+      }).join('')
+    : '<p class="empty-note">No events posted yet.</p>';
 
   eventsEl.querySelectorAll('.event-card__head').forEach(btn => {
     btn.addEventListener('click', () => {
