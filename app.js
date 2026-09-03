@@ -59,72 +59,88 @@ document.getElementById('retreatLocation').textContent = RETREAT.location;
 
 const dayTabsEl = document.getElementById('dayTabs');
 const agendaListEl = document.getElementById('agendaList');
-const dayNames = Object.keys(AGENDA);
 
-let liveEventNames = [];
+let agendaData = {};      // day -> [{ time, title }]
+let agendaDayOrder = [];  // days in the order they first appear in the sheet
 let activeAgendaDay = null;
 
-function agendaItemTitle(item){
-  if (!item.eventRef) return item.title;
-  const liveName = liveEventNames[item.eventRef - 1];
-  return (liveName || `Event ${item.eventRef}`) + (item.suffix || '');
-}
-
-function renderAgenda(day){
+function renderAgendaDay(day){
   activeAgendaDay = day;
-  agendaListEl.innerHTML = AGENDA[day].map(item => `
+  agendaListEl.innerHTML = (agendaData[day] || []).map(item => `
     <div class="timeline__item">
       <div class="timeline__time">${item.time}</div>
-      <div class="timeline__title">${agendaItemTitle(item)}</div>
-      ${item.note ? `<div class="timeline__note">${item.note}</div>` : ''}
+      <div class="timeline__title">${item.title}</div>
     </div>
   `).join('');
 }
 
-dayTabsEl.innerHTML = dayNames.map((day, i) =>
-  `<button data-day="${day}" class="${i === 0 ? 'active' : ''}">${day}</button>`
-).join('');
+function renderDayTabs(){
+  dayTabsEl.innerHTML = agendaDayOrder.map((day, i) =>
+    `<button data-day="${day}" class="${day === activeAgendaDay ? 'active' : (!activeAgendaDay && i === 0 ? 'active' : '')}">${day}</button>`
+  ).join('');
 
-dayTabsEl.querySelectorAll('button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    dayTabsEl.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderAgenda(btn.dataset.day);
+  dayTabsEl.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      dayTabsEl.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderAgendaDay(btn.dataset.day);
+    });
   });
-});
-renderAgenda(dayNames[0]);
-
-const AGENDA_EVENT_NAMES_CACHE_KEY = 'redeemerAgendaEventNamesV1';
-
-function deriveEventNames(resultsRows){
-  const names = [];
-  resultsRows.forEach(r => {
-    if (r.event && !names.includes(r.event)) names.push(r.event);
-  });
-  return names;
 }
 
-async function loadAgendaEventNames(){
-  if (!CONFIG.resultsCsvUrl || !CONFIG.resultsCsvUrl.startsWith('http')) return;
+function buildAgenda(rows){
+  const data = {};
+  const order = [];
+  rows.forEach(r => {
+    const day = r['day of week'] || r.day;
+    const start = r['time start'] || r.time;
+    if (!day || !start) return;
+    if (!data[day]){ data[day] = []; order.push(day); }
+    const end = r['time end'];
+    data[day].push({
+      time: end ? `${start} – ${end}` : start,
+      title: r.activity || r.title || ''
+    });
+  });
+  return { data, order };
+}
+
+const AGENDA_CACHE_KEY = 'redeemerAgendaCsvV1';
+
+async function loadAgenda(){
+  if (!CONFIG.agendaCsvUrl || !CONFIG.agendaCsvUrl.startsWith('http')){
+    agendaListEl.innerHTML = '<p class="empty-note">Connect the Agenda sheet tab in js/data.js to show the schedule here.</p>';
+    return;
+  }
+
+  let cachedRows = null;
+  try { cachedRows = JSON.parse(localStorage.getItem(AGENDA_CACHE_KEY)); } catch (err) { cachedRows = null; }
+
+  if (cachedRows && cachedRows.length){
+    const built = buildAgenda(cachedRows);
+    agendaData = built.data; agendaDayOrder = built.order;
+    renderDayTabs();
+    renderAgendaDay(agendaDayOrder[0]);
+  } else {
+    agendaListEl.innerHTML = '<p class="empty-note">Loading agenda…</p>';
+  }
 
   try {
-    const cached = JSON.parse(localStorage.getItem(AGENDA_EVENT_NAMES_CACHE_KEY));
-    if (cached && cached.length){
-      liveEventNames = cached;
-      if (activeAgendaDay) renderAgenda(activeAgendaDay);
-    }
-  } catch (err) { /* no usable cache — fine, just fetch fresh below */ }
-
-  try {
-    const resultsRows = await fetchCsv(CONFIG.resultsCsvUrl);
-    liveEventNames = deriveEventNames(resultsRows);
-    if (activeAgendaDay) renderAgenda(activeAgendaDay);
-    try { localStorage.setItem(AGENDA_EVENT_NAMES_CACHE_KEY, JSON.stringify(liveEventNames)); }
+    const rows = await fetchCsv(CONFIG.agendaCsvUrl);
+    const built = buildAgenda(rows);
+    agendaData = built.data; agendaDayOrder = built.order;
+    renderDayTabs();
+    renderAgendaDay(agendaDayOrder.includes(activeAgendaDay) ? activeAgendaDay : agendaDayOrder[0]);
+    try { localStorage.setItem(AGENDA_CACHE_KEY, JSON.stringify(rows)); }
     catch (err) { /* storage full/unavailable — fine, just skip caching */ }
-  } catch (err) { /* couldn't refresh — keep whatever was last rendered */ }
+  } catch (err){
+    if (!agendaDayOrder.length){
+      agendaListEl.innerHTML = '<p class="empty-note">Couldn\'t load the agenda right now.</p>';
+    }
+  }
 }
 
-loadAgendaEventNames();
+loadAgenda();
 
 document.getElementById('speakersList').innerHTML = SPEAKERS.map(s => `
   <p class="speakers__line"><span class="speakers__role">${s.role}</span> ${s.name}</p>
