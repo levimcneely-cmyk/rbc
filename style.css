@@ -143,6 +143,11 @@ body{ overflow-x: hidden; }
 .timeline__title{ font-size:16px; font-weight:600; margin-top:2px; }
 .timeline__note{ font-size:14px; color: var(--ink-soft); margin-top:2px; }
 
+/* ---------- Speakers ---------- */
+.speakers{ margin: 4px 0 18px; }
+.speakers__line{ font-size:15px; margin: 4px 0; color: var(--pine); }
+.speakers__role{ font-weight:600; color: var(--moss); margin-right: 6px; }
+
 /* ---------- Accordion (shared: packing + worship) ---------- */
 .accordion-trigger{
   width:100%; display:flex; justify-content:space-between; align-items:center;
