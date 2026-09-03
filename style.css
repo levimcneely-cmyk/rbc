@@ -180,6 +180,7 @@ body{ overflow-x: hidden; }
   display:grid; grid-template-columns: 1fr 1fr; gap: 8px 12px;
   padding: 0 4px 20px; font-size:15px; color: var(--pine);
 }
+.roster-grid[hidden]{ display:none; }
 
 /* ---------- Redeemer Cup ---------- */
 .cup-board{
