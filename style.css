@@ -177,10 +177,10 @@ body{ overflow-x: hidden; }
 .song__head[aria-expanded="true"] .song__icon{ transform: rotate(45deg); }
 .song__lyrics{ padding: 0 4px 20px; font-size:16px; line-height:1.7; white-space: pre-line; color: var(--pine); }
 .roster-grid{
-  display:grid; grid-template-columns: 1fr 1fr; gap: 8px 12px;
-  padding: 0 4px 20px; font-size:15px; color: var(--pine);
+  grid-template-columns: 1fr 1fr; gap: 8px 12px;
+  font-size:15px; color: var(--pine);
 }
-.roster-grid[hidden]{ display:none; }
+.event-card__body.roster-grid.open{ display:grid; }
 
 /* ---------- Redeemer Cup ---------- */
 .cup-board{
