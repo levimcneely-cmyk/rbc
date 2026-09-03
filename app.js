@@ -103,15 +103,17 @@ packingToggle.addEventListener('click', () => {
    Worship
    ============================================================ */
 const worshipListEl = document.getElementById('worshipList');
-worshipListEl.innerHTML = WORSHIP_SONGS.map((song, i) => `
-  <div class="song">
-    <button class="song__head" aria-expanded="false" data-i="${i}">
-      <span class="song__title">${song.title}</span>
-      <span class="song__icon">+</span>
-    </button>
-    <div class="song__lyrics" id="lyrics-${i}" hidden>${song.lyrics}</div>
-  </div>
-`).join('');
+worshipListEl.innerHTML = WORSHIP_SONGS.length
+  ? WORSHIP_SONGS.map((song, i) => `
+    <div class="song">
+      <button class="song__head" aria-expanded="false" data-i="${i}">
+        <span class="song__title">${song.title}</span>
+        <span class="song__icon">+</span>
+      </button>
+      <div class="song__lyrics" id="lyrics-${i}" hidden>${song.lyrics}</div>
+    </div>
+  `).join('')
+  : '<p class="empty-note">Setlist coming soon.</p>';
 
 worshipListEl.querySelectorAll('.song__head').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -268,6 +270,32 @@ async function loadCup(){
         document.getElementById('event-body-' + btn.dataset.i).classList.toggle('open');
       });
     });
+
+    const rosterEl = document.getElementById('rosterList');
+    const teamNames = Object.keys(roster).sort();
+    if (!teamNames.length){
+      rosterEl.innerHTML = '<p class="empty-note">No teams posted yet.</p>';
+    } else {
+      rosterEl.innerHTML = teamNames.map((team, i) => `
+        <div class="song">
+          <button class="song__head" aria-expanded="false" data-i="roster-${i}">
+            <span class="song__title">${team}</span>
+            <span class="song__icon">+</span>
+          </button>
+          <div class="roster-grid" id="lyrics-roster-${i}" hidden>
+            ${(roster[team] || []).map(m => `<span>${m}</span>`).join('') || '<span>Roster coming soon</span>'}
+          </div>
+        </div>
+      `).join('');
+
+      rosterEl.querySelectorAll('.song__head').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const open = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', String(!open));
+          document.getElementById('lyrics-' + btn.dataset.i).hidden = open;
+        });
+      });
+    }
 
     const historyEl = document.getElementById('historyList');
     const historyItems = historyRows
