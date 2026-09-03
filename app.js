@@ -34,7 +34,7 @@ function showView(name){
   });
   navLinks.forEach(a => a.classList.toggle('active', a.dataset.view === name));
   closeMenu();
-  if (name === 'cup' && !cupLoaded) loadCup();
+  if (name === 'cup') loadCup();
 }
 
 navLinks.forEach(a => {
@@ -126,7 +126,6 @@ worshipListEl.querySelectorAll('.song__head').forEach(btn => {
 /* ============================================================
    Redeemer Cup — pulls from Google Sheets (published as CSV)
    ============================================================ */
-let cupLoaded = false;
 
 function parseCsv(text){
   const rows = [];
@@ -318,7 +317,6 @@ async function loadCup(){
       add the two published CSV links in js/data.js (see README.md).</p>`;
     rosterEl.innerHTML = '';
     historyEl.innerHTML = '';
-    cupLoaded = true;
     return;
   }
 
@@ -353,7 +351,6 @@ async function loadCup(){
       localStorage.setItem(CUP_CACHE_KEY, JSON.stringify({ teamsRows, resultsRows, historyRows }));
     } catch (err) { /* storage full or unavailable — fine, just skip caching */ }
 
-    cupLoaded = true;
   } catch (err){
     if (!cached){
       statusEl.textContent = "Couldn't load the sheet right now — double-check the published CSV links in js/data.js.";
