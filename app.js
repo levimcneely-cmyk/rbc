@@ -61,11 +61,21 @@ const dayTabsEl = document.getElementById('dayTabs');
 const agendaListEl = document.getElementById('agendaList');
 const dayNames = Object.keys(AGENDA);
 
+let liveEventNames = [];
+let activeAgendaDay = null;
+
+function agendaItemTitle(item){
+  if (!item.eventRef) return item.title;
+  const liveName = liveEventNames[item.eventRef - 1];
+  return (liveName || `Event ${item.eventRef}`) + (item.suffix || '');
+}
+
 function renderAgenda(day){
+  activeAgendaDay = day;
   agendaListEl.innerHTML = AGENDA[day].map(item => `
     <div class="timeline__item">
       <div class="timeline__time">${item.time}</div>
-      <div class="timeline__title">${item.title}</div>
+      <div class="timeline__title">${agendaItemTitle(item)}</div>
       ${item.note ? `<div class="timeline__note">${item.note}</div>` : ''}
     </div>
   `).join('');
@@ -83,6 +93,38 @@ dayTabsEl.querySelectorAll('button').forEach(btn => {
   });
 });
 renderAgenda(dayNames[0]);
+
+const AGENDA_EVENT_NAMES_CACHE_KEY = 'redeemerAgendaEventNamesV1';
+
+function deriveEventNames(resultsRows){
+  const names = [];
+  resultsRows.forEach(r => {
+    if (r.event && !names.includes(r.event)) names.push(r.event);
+  });
+  return names;
+}
+
+async function loadAgendaEventNames(){
+  if (!CONFIG.resultsCsvUrl || !CONFIG.resultsCsvUrl.startsWith('http')) return;
+
+  try {
+    const cached = JSON.parse(localStorage.getItem(AGENDA_EVENT_NAMES_CACHE_KEY));
+    if (cached && cached.length){
+      liveEventNames = cached;
+      if (activeAgendaDay) renderAgenda(activeAgendaDay);
+    }
+  } catch (err) { /* no usable cache — fine, just fetch fresh below */ }
+
+  try {
+    const resultsRows = await fetchCsv(CONFIG.resultsCsvUrl);
+    liveEventNames = deriveEventNames(resultsRows);
+    if (activeAgendaDay) renderAgenda(activeAgendaDay);
+    try { localStorage.setItem(AGENDA_EVENT_NAMES_CACHE_KEY, JSON.stringify(liveEventNames)); }
+    catch (err) { /* storage full/unavailable — fine, just skip caching */ }
+  } catch (err) { /* couldn't refresh — keep whatever was last rendered */ }
+}
+
+loadAgendaEventNames();
 
 document.getElementById('speakersList').innerHTML = SPEAKERS.map(s => `
   <p class="speakers__line"><span class="speakers__role">${s.role}</span> ${s.name}</p>
