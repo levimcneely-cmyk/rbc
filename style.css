@@ -191,6 +191,10 @@ body{ overflow-x: hidden; }
 .cup-board{
   border: 1px solid var(--line); border-radius: var(--radius); overflow:hidden; background: var(--card);
 }
+.tiebreak-note{
+  font-size:13px; line-height:1.5; color: var(--ink-soft);
+  margin: 10px 2px 0; font-style: italic;
+}
 .cup-row{
   display:flex; align-items:center; gap:12px; padding: 13px 16px;
   border-bottom: 1px solid var(--line);
