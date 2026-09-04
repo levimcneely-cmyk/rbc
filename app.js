@@ -321,32 +321,21 @@ function renderCup(teamsRows, resultsRows, historyRows, { fromCache } = {}){
     });
   });
 
-  // Only explain the tiebreak when a real point tie actually happened —
-  // group consecutive teams in the (already tie-broken) ranking that
-  // share the same point total.
+  // Only explain the tiebreak when it actually decided 1st place —
+  // ties further down the standings don't matter enough to call out.
   const tiebreakNoteEl = document.getElementById('tiebreakNote');
-  const tieGroups = [];
-  let gi = 0;
-  while (gi < ranked.length){
-    let gj = gi;
-    while (gj + 1 < ranked.length && ranked[gj + 1][1] === ranked[gi][1]) gj++;
-    if (gj > gi) tieGroups.push(ranked.slice(gi, gj + 1));
-    gi = gj + 1;
-  }
+  let firstPlaceTieEnd = 0;
+  while (firstPlaceTieEnd + 1 < ranked.length && ranked[firstPlaceTieEnd + 1][1] === ranked[0][1]) firstPlaceTieEnd++;
 
-  if (tieGroups.some(g => g[0][1] > 0)){
-    const sentences = tieGroups
-      .filter(group => group[0][1] > 0)
-      .map(group => {
-        const pts = group[0][1];
-        const parts = group.map(([team]) => {
-          const avg = avgPlacement[team];
-          return `${team} (avg. placement ${avg !== undefined ? avg.toFixed(1) : '—'})`;
-        });
-        const winner = group[0][0];
-        return `${parts.join(' and ')} tied at ${pts} pts — ${winner} wins the tiebreaker with the better average event placement.`;
-      });
-    tiebreakNoteEl.textContent = sentences.join(' ');
+  if (firstPlaceTieEnd > 0 && ranked[0][1] > 0){
+    const tiedGroup = ranked.slice(0, firstPlaceTieEnd + 1);
+    const pts = tiedGroup[0][1];
+    const parts = tiedGroup.map(([team]) => {
+      const avg = avgPlacement[team];
+      return `${team} (avg. placement ${avg !== undefined ? avg.toFixed(1) : '—'})`;
+    });
+    const winner = tiedGroup[0][0];
+    tiebreakNoteEl.textContent = `${parts.join(' and ')} tied at ${pts} pts — ${winner} wins the tiebreaker with the better average event placement.`;
     tiebreakNoteEl.hidden = false;
   } else {
     tiebreakNoteEl.textContent = '';
