@@ -235,6 +235,19 @@ function driveImageUrl(shareUrl){
   return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
 }
 
+function ordinal(n){
+  const num = Number(n);
+  if (Number.isNaN(num)) return String(n);
+  const rem100 = num % 100;
+  if (rem100 >= 11 && rem100 <= 13) return num + 'th';
+  switch (num % 10){
+    case 1: return num + 'st';
+    case 2: return num + 'nd';
+    case 3: return num + 'rd';
+    default: return num + 'th';
+  }
+}
+
 const CUP_CACHE_KEY = 'redeemerCupCacheV1';
 
 function renderCup(teamsRows, resultsRows, historyRows, { fromCache } = {}){
@@ -253,20 +266,38 @@ function renderCup(teamsRows, resultsRows, historyRows, { fromCache } = {}){
     if (r.member) roster[team].push(r.member);
   });
 
-  // Results: event -> team -> placement
+  // Results: event -> team -> placement (the "Overall" rows are a
+  // sheet-computed tiebreak summary, not a real event — excluded here
+  // so they don't show as a 5th event card or get double-counted).
   const byEvent = {};
   const totals = {};
+  const placementsByTeam = {};
   resultsRows.forEach(r => {
     const event = r.event, team = r.team, place = r.placement || r.place;
-    if (!event || !team) return;
+    if (!event || !team || event.toLowerCase() === 'overall') return;
     byEvent[event] = byEvent[event] || {};
     byEvent[event][team] = place;
     const pts = pointsForPlace(place);
     totals[team] = (totals[team] || 0) + pts;
+    if (place !== undefined && place !== ''){
+      placementsByTeam[team] = placementsByTeam[team] || [];
+      placementsByTeam[team].push(Number(place));
+    }
     if (!(team in roster)) roster[team] = [];
   });
 
-  const ranked = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+  const avgPlacement = {};
+  Object.keys(placementsByTeam).forEach(team => {
+    const list = placementsByTeam[team];
+    avgPlacement[team] = list.reduce((a, b) => a + b, 0) / list.length;
+  });
+
+  const ranked = Object.entries(totals).sort((a, b) => {
+    if (b[1] !== a[1]) return b[1] - a[1];
+    const avgA = avgPlacement[a[0]] ?? Infinity;
+    const avgB = avgPlacement[b[0]] ?? Infinity;
+    return avgA - avgB;
+  });
 
   statusEl.textContent = ranked.length
     ? (fromCache ? 'Showing the last saved standings…' : 'Standings update automatically from the team sheet.')
@@ -290,9 +321,12 @@ function renderCup(teamsRows, resultsRows, historyRows, { fromCache } = {}){
   // Event names come straight from whatever's typed in the sheet's
   // "Event" column — in the order they first appear, so "Event 1" shows
   // before "Event 2" as long as that's the order rows were entered.
+  // ("Overall" is a sheet-computed tiebreak summary, not a real event.)
   const eventNames = [];
   resultsRows.forEach(r => {
-    if (r.event && !eventNames.includes(r.event)) eventNames.push(r.event);
+    if (r.event && r.event.toLowerCase() !== 'overall' && !eventNames.includes(r.event)) {
+      eventNames.push(r.event);
+    }
   });
 
   eventsEl.innerHTML = eventNames.length
@@ -300,7 +334,13 @@ function renderCup(teamsRows, resultsRows, historyRows, { fromCache } = {}){
         const placements = byEvent[name] || {};
         const rows = Object.entries(placements)
           .sort((a, b) => Number(a[1]) - Number(b[1]))
-          .map(([team, place]) => `<div class="event-row"><span>${team}</span><span>${place}</span></div>`)
+          .map(([team, place]) => `
+            <div class="event-row">
+              <span class="event-row__team">${team}</span>
+              <span class="event-row__place">${ordinal(place)}</span>
+              <span class="event-row__pts">${pointsForPlace(place)} pts</span>
+            </div>
+          `)
           .join('');
         return `
           <div class="event-card">
