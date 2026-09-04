@@ -280,8 +280,11 @@ function renderCup(teamsRows, resultsRows, historyRows, { fromCache } = {}){
     const pts = pointsForPlace(place);
     totals[team] = (totals[team] || 0) + pts;
     if (place !== undefined && place !== ''){
-      placementsByTeam[team] = placementsByTeam[team] || [];
-      placementsByTeam[team].push(Number(place));
+      const numPlace = Number(place);
+      if (!Number.isNaN(numPlace)){
+        placementsByTeam[team] = placementsByTeam[team] || [];
+        placementsByTeam[team].push(numPlace);
+      }
     }
     if (!(team in roster)) roster[team] = [];
   });
@@ -331,16 +334,18 @@ function renderCup(teamsRows, resultsRows, historyRows, { fromCache } = {}){
     gi = gj + 1;
   }
 
-  if (tieGroups.length){
-    const sentences = tieGroups.map(group => {
-      const pts = group[0][1];
-      const parts = group.map(([team]) => {
-        const avg = avgPlacement[team];
-        return `${team} (avg. placement ${avg !== undefined ? avg.toFixed(1) : '—'})`;
+  if (tieGroups.some(g => g[0][1] > 0)){
+    const sentences = tieGroups
+      .filter(group => group[0][1] > 0)
+      .map(group => {
+        const pts = group[0][1];
+        const parts = group.map(([team]) => {
+          const avg = avgPlacement[team];
+          return `${team} (avg. placement ${avg !== undefined ? avg.toFixed(1) : '—'})`;
+        });
+        const winner = group[0][0];
+        return `${parts.join(' and ')} tied at ${pts} pts — ${winner} wins the tiebreaker with the better average event placement.`;
       });
-      const winner = group[0][0];
-      return `${parts.join(' and ')} tied at ${pts} pts — ${winner} wins the tiebreaker with the better average event placement.`;
-    });
     tiebreakNoteEl.textContent = sentences.join(' ');
     tiebreakNoteEl.hidden = false;
   } else {
@@ -367,7 +372,7 @@ function renderCup(teamsRows, resultsRows, historyRows, { fromCache } = {}){
           .map(([team, place]) => `
             <div class="event-row">
               <span class="event-row__team">${team}</span>
-              <span class="event-row__place">${ordinal(place)}</span>
+              <span class="event-row__place">${Number.isNaN(Number(place)) ? '—' : ordinal(place)}</span>
               <span class="event-row__pts">${pointsForPlace(place)} pts</span>
             </div>
           `)
