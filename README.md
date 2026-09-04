@@ -52,18 +52,30 @@ what shows in the app).
 | Team Blue | Mark Jones   |
 | Team Red  | Alex Brown   |
 
-**Tab "Results"** — one row per team per event, filled in as each event finishes
-| event   | team      | placement |
-|---------|-----------|-----------|
-| Event 1 | Team Blue | 1         |
-| Event 1 | Team Red  | 2         |
-| Event 2 | Team Red  | 1         |
+**Tab "Scoring"** — one row per team per event, filled in as each event finishes
+| team      | event         | score | placement |
+|-----------|---------------|-------|-----------|
+| Team Blue | Murder Mystery| 10    | 1         |
+| Team Red  | Murder Mystery| 8     | 2         |
 
-Placement is just the finish order (1st, 2nd, 3rd...) — the app converts
-that into points automatically using the scale in `CONFIG.pointsByPlace`
-in `data.js` (defaults to 5/3/2/1/0, adjust to taste). Whatever text is
-in the "event" column becomes the event's display name everywhere in
-the app, agenda included — rename it here and it updates everywhere.
+"Score" is whatever the raw result was (points, time, whatever fits the
+event) — it's just for your own reference, the app doesn't read it.
+"Placement" is the finish order the app actually uses, and you control
+tie handling directly here: if two teams tie for 3rd, give them both
+placement 3 (so they both earn 3rd-place points) and give the next team
+placement 4 — don't skip a number, since nobody should end up losing
+points to a tie further up. Whatever text is in the "event" column
+becomes that event's display name everywhere in the app, agenda
+included — rename it here and it updates everywhere.
+
+**Overall row + final tiebreak:** add one extra row per team with event
+= `Overall` and placement = each team's average placement across the
+real events. The app ignores these rows for scoring (so they don't show
+up as a 5th event card or add extra points) — they're not even required
+for it to work, since the app calculates each team's average placement
+itself from the real event rows. If two teams end up tied on total
+points, whichever has the better (lower) average placement is ranked
+higher automatically.
 
 **Tab "History"** — past winners, one row per year
 | year | winners | url                                |
