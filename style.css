@@ -219,8 +219,14 @@ body{ overflow-x: hidden; }
 .event-card__head[aria-expanded="true"] .event-card__icon{ transform: rotate(45deg); }
 .event-card__body{ padding: 0 16px 14px; display:none; }
 .event-card__body.open{ display:block; }
-.event-row{ display:flex; justify-content:space-between; padding:6px 0; font-size:15px; border-top:1px solid var(--line); }
+.event-row{
+  display:flex; align-items:center; gap:10px;
+  padding:6px 0; font-size:15px; border-top:1px solid var(--line);
+}
 .event-row:first-child{ border-top:none; }
+.event-row__team{ flex:1; }
+.event-row__place{ width:38px; color: var(--ink-soft); }
+.event-row__pts{ width:52px; text-align:right; color: var(--moss); font-weight:600; }
 
 .empty-note{ font-size:14px; color: var(--ink-soft); padding: 10px 2px 20px; }
 
