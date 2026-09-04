@@ -318,6 +318,36 @@ function renderCup(teamsRows, resultsRows, historyRows, { fromCache } = {}){
     });
   });
 
+  // Only explain the tiebreak when a real point tie actually happened —
+  // group consecutive teams in the (already tie-broken) ranking that
+  // share the same point total.
+  const tiebreakNoteEl = document.getElementById('tiebreakNote');
+  const tieGroups = [];
+  let gi = 0;
+  while (gi < ranked.length){
+    let gj = gi;
+    while (gj + 1 < ranked.length && ranked[gj + 1][1] === ranked[gi][1]) gj++;
+    if (gj > gi) tieGroups.push(ranked.slice(gi, gj + 1));
+    gi = gj + 1;
+  }
+
+  if (tieGroups.length){
+    const sentences = tieGroups.map(group => {
+      const pts = group[0][1];
+      const parts = group.map(([team]) => {
+        const avg = avgPlacement[team];
+        return `${team} (avg. placement ${avg !== undefined ? avg.toFixed(1) : '—'})`;
+      });
+      const winner = group[0][0];
+      return `${parts.join(' and ')} tied at ${pts} pts — ${winner} wins the tiebreaker with the better average event placement.`;
+    });
+    tiebreakNoteEl.textContent = sentences.join(' ');
+    tiebreakNoteEl.hidden = false;
+  } else {
+    tiebreakNoteEl.textContent = '';
+    tiebreakNoteEl.hidden = true;
+  }
+
   // Event names come straight from whatever's typed in the sheet's
   // "Event" column — in the order they first appear, so "Event 1" shows
   // before "Event 2" as long as that's the order rows were entered.
@@ -429,6 +459,7 @@ async function loadCup(){
       add the two published CSV links in js/data.js (see README.md).</p>`;
     rosterEl.innerHTML = '';
     historyEl.innerHTML = '';
+    document.getElementById('tiebreakNote').hidden = true;
     return;
   }
 
@@ -470,6 +501,7 @@ async function loadCup(){
       eventsEl.innerHTML = '';
       rosterEl.innerHTML = '';
       historyEl.innerHTML = '';
+      document.getElementById('tiebreakNote').hidden = true;
     } else {
       statusEl.textContent = "Couldn't refresh just now — showing the last saved standings.";
     }
