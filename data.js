@@ -112,7 +112,7 @@ const WORSHIP_SONGS = [
    Daylight Time) offset so it unlocks at the right real-world moment
    no matter what timezone a visitor's phone is set to. */
 const CUP_FORM = {
-  label: "Submit your guesses",
+  label: "Final Event - Submit your guesses",
   url: "https://forms.gle/quwzwCJreSWuhp9n7",
   unlocksAt: "2026-09-11T19:00:00-04:00" // Friday, Sept 11, 2026, 7:00 PM Eastern
 };
