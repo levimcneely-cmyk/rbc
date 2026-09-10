@@ -188,6 +188,18 @@ body{ overflow-x: hidden; }
 .event-card__body.roster-grid.open{ display:grid; }
 
 /* ---------- Redeemer Cup ---------- */
+.form-link{
+  display:block; text-align:center; padding: 13px 16px; margin-bottom: 16px;
+  border-radius: var(--radius); font-size:15px; font-weight:600;
+  text-decoration:none;
+}
+.form-link--open{
+  background: var(--teal); color:#fff; cursor:pointer;
+}
+.form-link--locked{
+  background: var(--card); border: 1px dashed var(--line);
+  color: var(--ink-soft); font-weight:500;
+}
 .cup-board{
   border: 1px solid var(--line); border-radius: var(--radius); overflow:hidden; background: var(--card);
 }
