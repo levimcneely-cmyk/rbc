@@ -207,8 +207,6 @@ body{ overflow-x: hidden; }
 .cup-row--1 .cup-rank{ color: var(--gold); }
 .cup-team{ flex:1; font-weight:600; font-size:16px; }
 .cup-points{ font-size:15px; color: var(--moss); font-weight:600; }
-.cup-roster{ padding: 0 16px 14px 52px; font-size:14px; color: var(--ink-soft); display:none; }
-.cup-roster.open{ display:block; }
 
 .event-card{
   border: 1px solid var(--line); border-radius: var(--radius); background: var(--card);
