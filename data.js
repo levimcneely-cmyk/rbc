@@ -51,19 +51,19 @@ const PACKING = {
 const WORSHIP_SONGS = [
   {
     title: "10,000 Reasons",
-    lyrics: "Bless the Lord O my soul \nO my soul\nWorship his holy name\nSing like never before\nO my soul\nI'll worship your holy name\n\nThe sun comes up\nIt's a new day dawning\nIt's time to sing your song again\nWhatever may pass and whatever lies before me\nLet me be singing when the evening comes\n\nBless the Lord O my soul \nO my soul\nWorship his holy name\nSing like never before\nO my soul\nI'll worship your holy name"
+    lyrics: "Bless the Lord O my soul \nO my soul\nWorship his holy name\nSing like never before\nO my soul\nI'll worship your holy name\n\nThe sun comes up\nIt's a new day dawning\nIt's time to sing your song again\nWhatever may pass and whatever lies before me\nLet me be singing when the evening comes\n\nBless the Lord O my soul \nO my soul\nWorship his holy name\nSing like never before\nO my soul\nI'll worship your holy name\n"
   },
   {
     title: "A Thousand Hallelujahs",
-    lyrics: "Order: Verse 1, Chorus, Verse 2, Chorus, Bridge 1a, Bridge 1b, Chorus\n\n[Paste lyrics here]"
+    lyrics: "Who else would rocks cry out to worship? \nWhose glory taught the stars to shine?\nPerhaps creation longs to have the words to sing\nBut this joy is mine\n\nWith a thousand hallelujahs\nWe magnify Your name\nYou alone deserve the glory\nThe honor and the praise\nLord Jesus\nThis song is forever Yours\nA thousand hallelujahs\nAnd a thousand more\n\nWho else would die for our redemption?\nWhose resurrection means I'll rise?\nThere isn't time enough to sing of all You've done\nBut I have eternity to try\n\nWith a thousand hallelujahs\nWe magnify Your name\nYou alone deserve the glory\nThe honor and the praise\nLord Jesus\nThis song is forever Yours\nA thousand hallelujahs\nAnd a thousand more\n\nPraise to the Lord\nTo the lamb\nTo the King of Heaven\nPraise for He rose\nNow He reigns\nWe will sing forever\n\nPraise to the Lord\nTo the lamb\nTo the King of Heaven\nPraise for He rose\nNow He reigns\nWe will sing forever\n\nWith a thousand hallelujahs\nWe magnify Your name\nYou alone deserve the glory\nThe honor and the praise\nLord Jesus\nThis song is forever Yours\nA thousand hallelujahs\nAnd a thousand more\n"
   },
   {
     title: "O Praise the Name (Anástasis)",
-    lyrics: "Order: Verse 1, Verse 2, Chorus 1, Verse 3, Chorus 2, Verse 4, Chorus 3, Ending\n\n[Paste lyrics here]"
+    lyrics: "I cast my mind to Calvary\nWhere Jesus bled and died for me\nI see His wounds, His hands, His feet\nMy Saviour on that cursed tree\n\nHis body bound and drenched in tears\nThey laid Him down in Joseph's tomb\nThe entrance sealed by heavy stone\nMessiah still and all alone\n\nO praise the Name of the Lord our God\nO praise His Name forevermore\nFor endless days we will sing Your praise\nOh Lord oh Lord our God\n\nThen on the third at break of dawn\nThe Son of heaven rose again\nO trampled death where is your sting\nThe angels roar for Christ the King\nO trampled death where is your sting\nThe angels roar for Christ the King\n\nO praise the Name of the Lord our God\nO praise His Name forevermore\nFor endless days we will sing Your praise\nOh Lord oh Lord our God\n\nHe shall return in robes of white\nThe blazing sun shall pierce the night\nAnd I will rise among the saints\nMy gaze transfixed on Jesus' face\n\nO praise the Name of the Lord our God\nO praise His Name forevermore\nFor endless days we will sing Your praise\nOh Lord oh Lord our God\n\nO praise the Name of the Lord our God\nO praise His Name forevermore\nFor endless days we will sing Your praise\nOh Lord oh Lord our God\nOh Lord oh Lord our God\n"
   },
   {
     title: "'Tis So Sweet to Trust in Jesus",
-    lyrics: "Order: Verse 1, Chorus, Chorus\n\n[Paste lyrics here]"
+    lyrics: "'Tis so sweet to trust in Jesus,\n\Just to take Him at His Word;\nJust to rest upon His promise,\nJust to know, "Thus saith the Lord!"\n\nJesus, Jesus, how I trust Him!\nHow I've proved Him o'er and o'er;\nJesus, Jesus, precious Jesus!\nOh, for grace to trust Him more!\n"
   },
   {
     title: "His Glory and My Good",
