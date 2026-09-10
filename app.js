@@ -309,17 +309,10 @@ function renderCup(teamsRows, resultsRows, historyRows, { fromCache } = {}){
   boardEl.innerHTML = ranked.map(([team, pts], i) => `
     <div class="cup-row cup-row--${i + 1}">
       <div class="cup-rank">${i + 1}</div>
-      <button class="cup-team" data-team="${team}" style="background:none;border:none;text-align:left;padding:0;font:inherit;color:inherit;cursor:pointer;">${team}</button>
+      <span class="cup-team">${team}</span>
       <div class="cup-points">${pts} pts</div>
     </div>
-    <div class="cup-roster" id="roster-${i}">${(roster[team] || []).join(', ') || 'Roster coming soon'}</div>
   `).join('');
-
-  boardEl.querySelectorAll('.cup-team').forEach((btn, i) => {
-    btn.addEventListener('click', () => {
-      document.getElementById('roster-' + i).classList.toggle('open');
-    });
-  });
 
   // Only explain the tiebreak when it actually decided 1st place —
   // ties further down the standings don't matter enough to call out.
