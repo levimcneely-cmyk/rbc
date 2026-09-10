@@ -42,8 +42,70 @@ const PACKING = {
 /* Add the real setlist here — one object per song.
    Use \n for line breaks within a verse/chorus.
    Until this is filled in, the Worship page just shows
-   "Setlist coming soon" instead of a placeholder song. */
-const WORSHIP_SONGS = [];
+   "Setlist coming soon" instead of a placeholder song.
+
+   NOTE: the "lyrics" field below is a placeholder — Claude can't
+   reproduce copyrighted song lyrics, so each entry currently just
+   shows the verse/chorus order. Paste the real lyrics in over that
+   placeholder text (keep the \n line breaks) once you have them. */
+const WORSHIP_SONGS = [
+  {
+    title: "10,000 Reasons",
+    lyrics: "Bless the Lord O my soul \nO my soul\nWorship his holy name\nSing like never before\nO my soul\nI'll worship your holy name\n\nThe sun comes up\nIt's a new day dawning\nIt's time to sing your song again\nWhatever may pass and whatever lies before me\nLet me be singing when the evening comes\n\nBless the Lord O my soul \nO my soul\nWorship his holy name\nSing like never before\nO my soul\nI'll worship your holy name"
+  },
+  {
+    title: "A Thousand Hallelujahs",
+    lyrics: "Order: Verse 1, Chorus, Verse 2, Chorus, Bridge 1a, Bridge 1b, Chorus\n\n[Paste lyrics here]"
+  },
+  {
+    title: "O Praise the Name (Anástasis)",
+    lyrics: "Order: Verse 1, Verse 2, Chorus 1, Verse 3, Chorus 2, Verse 4, Chorus 3, Ending\n\n[Paste lyrics here]"
+  },
+  {
+    title: "'Tis So Sweet to Trust in Jesus",
+    lyrics: "Order: Verse 1, Chorus, Chorus\n\n[Paste lyrics here]"
+  },
+  {
+    title: "His Glory and My Good",
+    lyrics: "Order: Verse 1, Verse 2, Chorus 1, Verse 3, Chorus 1, Verse 4, Chorus 2, Chorus 3\n\n[Paste lyrics here]"
+  },
+  {
+    title: "King of Kings",
+    lyrics: "Order: Chorus, Verse 1, Chorus, Verse 2, Verse 3, Verse 4, Chorus, Tag\n\n[Paste lyrics here]"
+  },
+  {
+    title: "All Sufficient Merit",
+    lyrics: "Order not finalized yet.\n\n[Paste lyrics here]"
+  },
+  {
+    title: "The Blood",
+    lyrics: "Order not finalized yet.\n\n[Paste lyrics here]"
+  },
+  {
+    title: "He Who Is to Come",
+    lyrics: "Order not finalized yet.\n\n[Paste lyrics here]"
+  },
+  {
+    title: "Christ Be Magnified",
+    lyrics: "Order not finalized yet.\n\n[Paste lyrics here]"
+  },
+  {
+    title: "Abide",
+    lyrics: "Order not finalized yet.\n\n[Paste lyrics here]"
+  },
+  {
+    title: "Bless God",
+    lyrics: "Order not finalized yet.\n\n[Paste lyrics here]"
+  },
+  {
+    title: "In Christ Alone",
+    lyrics: "Order not finalized yet.\n\n[Paste lyrics here]"
+  },
+  {
+    title: "Holy Forever",
+    lyrics: "Order not finalized yet.\n\n[Paste lyrics here]"
+  }
+];
 
 /* ============================================================
    CONFIG — Redeemer Cup data source
