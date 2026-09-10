@@ -34,7 +34,10 @@ function showView(name){
   });
   navLinks.forEach(a => a.classList.toggle('active', a.dataset.view === name));
   closeMenu();
-  if (name === 'cup') loadCup();
+  if (name === 'cup'){
+    loadCup();
+    renderCupFormLink();
+  }
 }
 
 navLinks.forEach(a => {
@@ -245,6 +248,22 @@ function ordinal(n){
     case 2: return num + 'nd';
     case 3: return num + 'rd';
     default: return num + 'th';
+  }
+}
+
+function renderCupFormLink(){
+  const el = document.getElementById('cupFormLink');
+  if (!el || typeof CUP_FORM === 'undefined' || !CUP_FORM.url) return;
+
+  const unlocked = Date.now() >= new Date(CUP_FORM.unlocksAt).getTime();
+
+  if (unlocked){
+    el.innerHTML = `<a class="form-link form-link--open" href="${CUP_FORM.url}" target="_blank" rel="noopener">${CUP_FORM.label}</a>`;
+  } else {
+    const opensText = new Date(CUP_FORM.unlocksAt).toLocaleString('en-US', {
+      weekday: 'long', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York'
+    });
+    el.innerHTML = `<span class="form-link form-link--locked">${CUP_FORM.label} — opens ${opensText}</span>`;
   }
 }
 
