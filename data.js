@@ -63,11 +63,11 @@ const WORSHIP_SONGS = [
   },
   {
     title: "'Tis So Sweet to Trust in Jesus",
-    lyrics: "'Tis so sweet to trust in Jesus,\n\Just to take Him at His Word;\nJust to rest upon His promise,\nJust to know, "Thus saith the Lord!"\n\nJesus, Jesus, how I trust Him!\nHow I've proved Him o'er and o'er;\nJesus, Jesus, precious Jesus!\nOh, for grace to trust Him more!\n"
+    lyrics: "'Tis so sweet to trust in Jesus,\n\Just to take Him at His Word;\nJust to rest upon His promise,\nJust to know, Thus saith the Lord!\n\nJesus, Jesus, how I trust Him!\nHow I've proved Him o'er and o'er;\nJesus, Jesus, precious Jesus!\nOh, for grace to trust Him more!\n"
   },
   {
     title: "His Glory and My Good",
-    lyrics: "Order: Verse 1, Verse 2, Chorus 1, Verse 3, Chorus 1, Verse 4, Chorus 2, Chorus 3\n\n[Paste lyrics here]"
+    lyrics: "I have seen my Father's glory\nRevealed in Jesus Christ\nAnd the more that I behold Him\nThe more He satisfies\nWhen I gaze upon His beauty\nWhen I see Him as I should\nThen my eyes are lifted upward\nFor His glory and my good\n\nThere is hope in every trial\nFor I can trust the Lord\nHe will turn my heart towards Him\nAnd help me bear the thorn\nSo in faith I follow Jesus\nOn the road not understood\nFor I know that He is working\nFor His glory and my good\n\nTo our God be the glory\nTo our God be praise\nHe alone, the name above all names\nI will boast ever only in the Lord my God\nFor I know His glory is my good\n\nSee the open arms of Jesus\nUpon the cross that day\nWhat they understood as weakness\nDeserves my every praise\nFor the charge that was against me\nIt was nailed into the wood\nYes I know that He has saved me\nFor His glory and my good\n\nTo our God be the glory\nTo our God be praise\nHe alone, the name above all names\nI will boast ever only in the Lord my God\nFor I know His glory is my good\n\nWould I gladly be made nothing\nThat Christ would be made more\nWould I seek the only kingdom\nThat far outweighs them all\nI will stand before my Father\nWhere the faithful saints have stood\nAnd with joy my heart shall praise Him\nFor His glory and my good\nAnd with joy my heart shall praise Him\nFor His glory and my good\n\nTo our God be the glory\nTo our God be praise\nHe alone, the name above all names\nI will boast ever only in the Lord my God\nFor I know His glory is my good\n"
   },
   {
     title: "King of Kings",
