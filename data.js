@@ -107,6 +107,16 @@ const WORSHIP_SONGS = [
   }
 ];
 
+/* The Redeemer Cup "guesses" form link — stays locked (not clickable)
+   until the date/time below. Written with an explicit -04:00 (Eastern
+   Daylight Time) offset so it unlocks at the right real-world moment
+   no matter what timezone a visitor's phone is set to. */
+const CUP_FORM = {
+  label: "Submit your guesses",
+  url: "https://forms.gle/quwzwCJreSWuhp9n7",
+  unlocksAt: "2026-09-11T19:00:00-04:00" // Friday, Sept 11, 2026, 7:00 PM Eastern
+};
+
 /* ============================================================
    CONFIG — Redeemer Cup data source
    Publish two tabs of your Google Sheet to the web as CSV
