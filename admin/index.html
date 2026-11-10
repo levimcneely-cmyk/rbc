@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>RBC Retreat Admin</title>
+<meta name="theme-color" content="#42585A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  main{ padding-top: 20px; padding-bottom: 40px; }
+  .admin-tag{ color:#fff; font-family: var(--font-display); font-weight:600; font-size:14px; letter-spacing:.06em; text-transform:uppercase; opacity:.85; }
+  .topbar a{ color:#fff; font-size:14px; text-decoration:none; opacity:.9; }
+
+  .gate{ max-width: 320px; margin: 48px auto 0; text-align:center; }
+  .gate h1{ font-size:24px; margin-bottom:6px; }
+  .gate p{ color: var(--ink-soft); font-size:14px; margin: 0 0 20px; }
+  .pin{ width:100%; font-size:28px; letter-spacing:.5em; text-align:center; padding:14px; border:1px solid var(--line); border-radius: var(--radius); font-family: var(--font-display); }
+  .pin:focus, .field input:focus, .field textarea:focus, .ev-name:focus{ outline: 2px solid var(--teal); outline-offset: 1px; }
+  .msg{ min-height: 20px; font-size:14px; margin-top:12px; color: var(--ink-soft); }
+  .msg--err{ color:#B3261E; }
+
+  .tabs{ display:flex; gap:6px; background:#F1F3F2; padding:4px; border-radius: 12px; margin-bottom: 18px; position: sticky; top: 60px; z-index: 10; }
+  .tabs button{ flex:1; border:none; background:none; padding:10px 6px; border-radius: 9px; font: 600 14px var(--font-body); color: var(--ink-soft); cursor:pointer; }
+  .tabs button.active{ background:#fff; color: var(--pine); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius: 11px; padding: 12px 16px; font: 600 15px var(--font-body); cursor:pointer; background: var(--teal); color:#fff; }
+  .btn:disabled{ opacity:.5; cursor:default; }
+  .btn--ghost{ background:none; color: var(--teal); border:1px solid var(--line); }
+  .btn--danger{ background:none; color:#B3261E; border:1px solid #F0D4D1; }
+  .btn--block{ width:100%; }
+  .btn--sm{ padding: 8px 12px; font-size:13px; border-radius: 9px; }
+
+  .card{ border:1px solid var(--line); border-radius: var(--radius); background:#fff; padding:16px; margin-bottom:14px; }
+  .card__top{ display:flex; gap:8px; align-items:center; margin-bottom: 12px; }
+  .ev-name{ flex:1; min-width:0; font: 600 16px var(--font-display); border:1px solid transparent; border-radius:9px; padding:8px 10px; background:#F7F8F8; }
+  .icon-btn{ width:36px; height:36px; flex:none; border:1px solid var(--line); background:#fff; border-radius:9px; cursor:pointer; font-size:15px; color: var(--ink-soft); }
+  .icon-btn:disabled{ opacity:.35; cursor:default; }
+
+  .place-row{ display:flex; align-items:center; gap:10px; padding: 8px 0; border-top:1px solid var(--line); }
+  .place-row:first-of-type{ border-top:none; }
+  .place-row__team{ flex:1; min-width:0; font-weight:600; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .seg{ display:flex; gap:4px; flex:none; }
+  .seg button{ width:34px; height:34px; border:1px solid var(--line); background:#fff; border-radius:8px; font: 600 14px var(--font-body); color: var(--ink-soft); cursor:pointer; }
+  .seg button.on{ background: var(--teal); border-color: var(--teal); color:#fff; }
+  .card__actions{ display:flex; gap:8px; margin-top: 12px; }
+  .card__actions .btn{ flex:1; }
+  .dirty-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:#D99A2B; flex:none; }
+
+  .field{ margin-bottom: 14px; }
+  .field label{ display:block; font-size:13px; font-weight:600; margin-bottom:6px; }
+  .field .hint{ font-size:12px; color: var(--ink-soft); margin-top:4px; }
+  .field input, .field textarea{ width:100%; font: 15px var(--font-body); padding: 11px 12px; border:1px solid var(--line); border-radius: 10px; background:#fff; color: var(--pine); }
+  .field textarea{ min-height: 120px; resize: vertical; line-height:1.5; }
+  .group-title{ font: 600 13px var(--font-body); text-transform:uppercase; letter-spacing:.06em; color: var(--ink-soft); margin: 22px 0 10px; }
+
+  .toast{ position: fixed; left:50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--pine); color:#fff; padding: 11px 18px; border-radius: 999px; font-size:14px; font-weight:600; opacity:0; transition: all .2s ease; pointer-events:none; z-index: 50; max-width: calc(100% - 32px); text-align:center; }
+  .toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
+  .toast.err{ background:#B3261E; }
+  .footer-links{ text-align:center; margin-top: 28px; font-size:14px; }
+  .footer-links button{ background:none; border:none; color: var(--ink-soft); text-decoration: underline; cursor:pointer; font: inherit; }
+  .empty-note{ color: var(--ink-soft); font-size:14px; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <img class="topbar__logo" src="../logo.png" alt="Redeemer Bible Church">
+  <span class="admin-tag">Admin</span>
+  <a href="../">View site →</a>
+</header>
+
+<main>
+  <!-- PASSCODE GATE -->
+  <section class="gate" id="gate">
+    <h1>Admin</h1>
+    <p>Enter the passcode to edit scores.</p>
+    <form id="gateForm" autocomplete="off">
+      <input class="pin" id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="12" autocomplete="off" aria-label="Passcode">
+      <button class="btn btn--block" style="margin-top:12px" id="gateBtn">Unlock</button>
+    </form>
+    <div class="msg" id="gateMsg"></div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="admin" hidden>
+    <div class="tabs" role="tablist">
+      <button class="active" data-tab="scores">Scores</button>
+      <button data-tab="teams">Teams</button>
+      <button data-tab="settings">Settings</button>
+    </div>
+
+    <!-- SCORES -->
+    <div id="tab-scores">
+      <h2 class="section-subtitle" style="margin-top:0">Standings</h2>
+      <div class="cup-board" id="standings"></div>
+      <p class="tiebreak-note" id="tiebreak" hidden></p>
+
+      <h2 class="section-subtitle">Events</h2>
+      <p class="section-hint">Tap a place for each team, then Save. Tap a place again to clear it.</p>
+      <div id="events"></div>
+      <button class="btn btn--ghost btn--block" id="addEvent">+ Add event</button>
+    </div>
+
+    <!-- TEAMS -->
+    <div id="tab-teams" hidden>
+      <p class="section-hint" style="margin-top:0">One member per line. Renaming a team keeps its scores.</p>
+      <div id="teams"></div>
+      <button class="btn btn--ghost btn--block" id="addTeam">+ Add team</button>
+      <button class="btn btn--block" id="saveTeams" style="margin-top:12px">Save teams</button>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="tab-settings" hidden>
+      <form id="settingsForm">
+        <div class="group-title" style="margin-top:0">Retreat</div>
+        <div class="field"><label for="s-year">Year</label><input id="s-year" name="year" inputmode="numeric"></div>
+        <div class="field"><label for="s-dates">Dates</label><input id="s-dates" name="dates" placeholder="September 9–11, 2027"></div>
+        <div class="field"><label for="s-location">Location</label><input id="s-location" name="location" placeholder="Country Lake Christian Retreat"></div>
+
+        <div class="group-title">Redeemer Cup</div>
+        <div class="field">
+          <label for="s-points">Points by place</label>
+          <input id="s-points" name="pointsByPlace" placeholder="5,3,2,1,0">
+          <div class="hint">1st, 2nd, 3rd… separated by commas.</div>
+        </div>
+        <div class="field">
+          <label for="s-reveal">Reveal team rosters at</label>
+          <input id="s-reveal" name="teamsRevealAt" type="datetime-local">
+          <div class="hint">Team names show right away; members stay hidden until this time. Leave blank to show now.</div>
+        </div>
+
+        <div class="group-title">Form link (optional)</div>
+        <div class="field"><label for="s-flabel">Button text</label><input id="s-flabel" name="formLabel" placeholder="Final Event – Submit your guesses"></div>
+        <div class="field"><label for="s-furl">Form URL</label><input id="s-furl" name="formUrl" type="url" placeholder="https://forms.gle/…"></div>
+        <div class="field">
+          <label for="s-fopens">Opens at</label>
+          <input id="s-fopens" name="formOpensAt" type="datetime-local">
+          <div class="hint">Shows locked until then. Blank button text or URL hides it.</div>
+        </div>
+
+        <button class="btn btn--block" id="saveSettings">Save settings</button>
+      </form>
+      <p class="section-hint" style="margin-top:18px">The agenda and past winners are edited right in the Google Sheet (Agenda and History tabs).</p>
+    </div>
+
+    <div class="footer-links"><button id="lockBtn">Lock this device</button></div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="../data.js"></script>
+<script src="../cup.js"></script>
+<script>
+const PASS_KEY = 'rbcAdminPass';
+let passcode = '';
+let state = null;          // last data from the server
+let drafts = [];           // [{ name, original, placements:{team:place}, dirty }]
+let teamDrafts = [];       // [{ team, originalTeam, members:'' }]
+
+const $ = id => document.getElementById(id);
+
+/* ---------- API ---------- */
+async function api(action, extra){
+  if (!apiConfigured()) throw new Error('API_URL is not set in data.js yet.');
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    body: JSON.stringify(Object.assign({ action, passcode }, extra || {}))
+  });
+  const data = await res.json();
+  if (!data.ok){
+    const err = new Error(data.error || 'Something went wrong.');
+    err.badPasscode = !!data.badPasscode;
+    err.locked = !!data.locked;
+    throw err;
+  }
+  return data;
+}
+
+function toast(text, isErr){
+  const t = $('toast');
+  t.textContent = text;
+  t.classList.toggle('err', !!isErr);
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove('show'), isErr ? 4000 : 2000);
+}
+
+function handleErr(err){
+  if (err.badPasscode || err.locked){ lock(err.message); return; }
+  toast(err.message || 'Save failed — try again.', true);
+}
+
+/* ---------- Gate ---------- */
+async function unlock(code, quiet){
+  passcode = code;
+  $('gateBtn').disabled = true;
+  $('gateMsg').className = 'msg';
+  $('gateMsg').textContent = quiet ? 'Loading…' : 'Checking…';
+  try {
+    const data = await api('verify');
+    try { localStorage.setItem(PASS_KEY, code); } catch (e) {}
+    $('gate').hidden = true;
+    $('admin').hidden = false;
+    load(data);
+  } catch (err){
+    passcode = '';
+    try { localStorage.removeItem(PASS_KEY); } catch (e) {}
+    $('gateMsg').className = 'msg msg--err';
+    $('gateMsg').textContent = err.message;
+    $('pin').value = '';
+    $('pin').focus();
+  } finally {
+    $('gateBtn').disabled = false;
+  }
+}
+
+function lock(message){
+  passcode = '';
+  try { localStorage.removeItem(PASS_KEY); } catch (e) {}
+  $('admin').hidden = true;
+  $('gate').hidden = false;
+  $('gateMsg').className = message ? 'msg msg--err' : 'msg';
+  $('gateMsg').textContent = message || '';
+  $('pin').value = '';
+}
+
+$('gateForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const code = $('pin').value.trim();
+  if (code) unlock(code);
+});
+$('lockBtn').addEventListener('click', () => lock(''));
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll('.tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b === btn));
+    ['scores', 'teams', 'settings'].forEach(t => { $('tab-' + t).hidden = t !== btn.dataset.tab; });
+  });
+});
+
+/* ---------- Load server state into drafts ---------- */
+function load(data, { keepDirtyEvents } = {}){
+  state = data;
+  const oldDirty = keepDirtyEvents ? drafts.filter(d => d.dirty) : [];
+  drafts = eventsFrom(data.results || []).map(ev => {
+    const placements = {};
+    ev.rows.forEach(r => { placements[r.team] = r.placement === '' ? '' : Number(r.placement); });
+    return { name: ev.name, original: ev.name, placements, dirty: false };
+  });
+  oldDirty.forEach(d => {
+    const i = drafts.findIndex(x => x.original === d.original);
+    if (i >= 0) drafts[i] = d; else if (!d.original) drafts.push(d);
+  });
+  teamDrafts = (data.teams || []).map(t => ({ team: t.team, originalTeam: t.team, members: t.members.join('\n') }));
+  renderStandings();
+  renderEvents();
+  renderTeams();
+  fillSettings(data.settings || {});
+}
+
+/* ---------- Scores ---------- */
+function renderStandings(){
+  const table = pointsTable(state.settings);
+  const results = state.results || [];
+  const anyScored = results.some(r => r.placement !== '');
+  if (!anyScored){
+    $('standings').innerHTML = '<div class="cup-row"><span class="empty-note">No scores yet.</span></div>';
+    $('tiebreak').hidden = true;
+    return;
+  }
+  const ranked = computeStandings(state.teams || [], results, table);
+  $('standings').innerHTML = ranked.map((r, i) => `
+    <div class="cup-row cup-row--${i + 1}">
+      <div class="cup-rank">${i + 1}</div>
+      <span class="cup-team">${esc(r.team)}</span>
+      <div class="cup-points">${r.pts} pts</div>
+    </div>`).join('');
+  const note = tiebreakText(ranked);
+  $('tiebreak').textContent = note;
+  $('tiebreak').hidden = !note;
+}
+
+function renderEvents(){
+  const teams = (state.teams || []).map(t => t.team);
+  const box = $('events');
+  if (!teams.length){
+    box.innerHTML = '<div class="card"><p class="empty-note" style="margin:0">Add teams first (Teams tab), then come back to score events.</p></div>';
+    $('addEvent').hidden = true;
+    return;
+  }
+  $('addEvent').hidden = false;
+  const places = Array.from({ length: teams.length }, (_, i) => i + 1);
+
+  box.innerHTML = drafts.length ? drafts.map((d, i) => `
+    <div class="card" data-i="${i}">
+      <div class="card__top">
+        ${d.dirty ? '<span class="dirty-dot" title="Unsaved changes"></span>' : ''}
+        <input class="ev-name" value="${esc(d.name)}" placeholder="Event name" data-act="name" aria-label="Event name">
+        <button class="icon-btn" data-act="up" ${i === 0 || !d.original ? 'disabled' : ''} aria-label="Move up">↑</button>
+        <button class="icon-btn" data-act="down" ${i >= drafts.length - 1 || !d.original || !drafts[i + 1].original ? 'disabled' : ''} aria-label="Move down">↓</button>
+      </div>
+      ${teams.map(team => `
+        <div class="place-row">
+          <span class="place-row__team">${esc(team)}</span>
+          <div class="seg">
+            ${places.map(p => `<button data-act="place" data-team="${esc(team)}" data-p="${p}" class="${d.placements[team] === p ? 'on' : ''}">${p}</button>`).join('')}
+          </div>
+        </div>`).join('')}
+      <div class="card__actions">
+        <button class="btn btn--danger btn--sm" data-act="delete">${d.original ? 'Delete' : 'Discard'}</button>
+        <button class="btn btn--sm" data-act="save" ${d.dirty ? '' : 'disabled'}>Save</button>
+      </div>
+    </div>`).join('')
+    : '<p class="empty-note">No events yet — add the first one.</p>';
+}
+
+$('events').addEventListener('input', e => {
+  if (e.target.dataset.act !== 'name') return;
+  const card = e.target.closest('.card');
+  const d = drafts[Number(card.dataset.i)];
+  d.name = e.target.value;
+  if (!d.dirty){
+    d.dirty = true;
+    card.querySelector('[data-act="save"]').disabled = false;
+    card.querySelector('.card__top').insertAdjacentHTML('afterbegin', '<span class="dirty-dot"></span>');
+  }
+});
+
+$('events').addEventListener('click', async e => {
+  const btn = e.target.closest('button[data-act]');
+  if (!btn) return;
+  const card = btn.closest('.card');
+  const i = Number(card.dataset.i);
+  const d = drafts[i];
+  const act = btn.dataset.act;
+
+  if (act === 'place'){
+    const p = Number(btn.dataset.p);
+    d.placements[btn.dataset.team] = d.placements[btn.dataset.team] === p ? '' : p;
+    d.dirty = true;
+    renderEvents();
+    return;
+  }
+
+  if (act === 'save'){
+    if (!d.name.trim()){ toast('Give the event a name first.', true); return; }
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+      const data = await api('saveEvent', { event: d.name, originalEvent: d.original, placements: d.placements });
+      d.dirty = false;
+      load(data, { keepDirtyEvents: true });
+      toast('Saved — live on the site');
+    } catch (err){ handleErr(err); renderEvents(); }
+    return;
+  }
+
+  if (act === 'delete'){
+    if (!d.original){ drafts.splice(i, 1); renderEvents(); return; }
+    if (!confirm(`Delete "${d.original}" and its scores?`)) return;
+    btn.disabled = true;
+    try {
+      load(await api('deleteEvent', { event: d.original }), { keepDirtyEvents: true });
+      toast('Event deleted');
+    } catch (err){ handleErr(err); renderEvents(); }
+    return;
+  }
+
+  if (act === 'up' || act === 'down'){
+    btn.disabled = true;
+    try {
+      load(await api('moveEvent', { event: d.original, direction: act }), { keepDirtyEvents: true });
+    } catch (err){ handleErr(err); renderEvents(); }
+  }
+});
+
+$('addEvent').addEventListener('click', () => {
+  drafts.push({ name: '', original: '', placements: {}, dirty: true });
+  renderEvents();
+  const inputs = $('events').querySelectorAll('.ev-name');
+  inputs[inputs.length - 1].focus();
+});
+
+/* ---------- Teams ---------- */
+function renderTeams(){
+  $('teams').innerHTML = teamDrafts.length ? teamDrafts.map((t, i) => `
+    <div class="card" data-i="${i}">
+      <div class="card__top">
+        <input class="ev-name" value="${esc(t.team)}" placeholder="Team name" data-f="team" aria-label="Team name">
+        <button class="icon-btn" data-act="remove" aria-label="Remove team">✕</button>
+      </div>
+      <div class="field" style="margin:0">
+        <textarea data-f="members" placeholder="One name per line" aria-label="Members">${esc(t.members)}</textarea>
+      </div>
+    </div>`).join('')
+    : '<p class="empty-note">No teams yet.</p>';
+}
+
+$('teams').addEventListener('input', e => {
+  const f = e.target.dataset.f;
+  if (!f) return;
+  teamDrafts[Number(e.target.closest('.card').dataset.i)][f] = e.target.value;
+});
+
+$('teams').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-act="remove"]');
+  if (!btn) return;
+  const i = Number(btn.closest('.card').dataset.i);
+  const t = teamDrafts[i];
+  if (t.originalTeam && !confirm(`Remove ${t.originalTeam}? Its scores will be removed too once you save.`)) return;
+  teamDrafts.splice(i, 1);
+  renderTeams();
+});
+
+$('addTeam').addEventListener('click', () => {
+  teamDrafts.push({ team: '', originalTeam: '', members: '' });
+  renderTeams();
+  const inputs = $('teams').querySelectorAll('.ev-name');
+  inputs[inputs.length - 1].focus();
+});
+
+$('saveTeams').addEventListener('click', async () => {
+  const btn = $('saveTeams');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const teams = teamDrafts
+      .filter(t => t.team.trim())
+      .map(t => ({ team: t.team.trim(), originalTeam: t.originalTeam, members: t.members.split('\n').map(s => s.trim()).filter(Boolean) }));
+    load(await api('saveTeams', { teams }));
+    toast('Teams saved');
+  } catch (err){ handleErr(err); }
+  finally { btn.disabled = false; btn.textContent = 'Save teams'; }
+});
+
+/* ---------- Settings ---------- */
+const DATE_FIELDS = ['teamsRevealAt', 'formOpensAt'];
+
+function isoToLocalInput(iso){
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function fillSettings(s){
+  const form = $('settingsForm');
+  Array.from(form.elements).forEach(el => {
+    if (!el.name) return;
+    el.value = DATE_FIELDS.includes(el.name) ? isoToLocalInput(s[el.name]) : (s[el.name] || '');
+  });
+}
+
+$('settingsForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const settings = {};
+  Array.from(e.target.elements).forEach(el => {
+    if (!el.name) return;
+    settings[el.name] = DATE_FIELDS.includes(el.name) && el.value ? new Date(el.value).toISOString() : el.value.trim();
+  });
+  const btn = $('saveSettings');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    load(await api('saveSettings', { settings }), { keepDirtyEvents: true });
+    toast('Settings saved');
+  } catch (err){ handleErr(err); }
+  finally { btn.disabled = false; btn.textContent = 'Save settings'; }
+});
+
+/* ---------- Start ---------- */
+window.addEventListener('beforeunload', e => {
+  if (drafts.some(d => d.dirty && (d.name.trim() || Object.values(d.placements).some(v => v !== '')))) e.preventDefault();
+});
+
+let saved = '';
+try { saved = localStorage.getItem(PASS_KEY) || ''; } catch (e) {}
+if (saved) unlock(saved, true); else $('pin').focus();
+</script>
+</body>
+</html>

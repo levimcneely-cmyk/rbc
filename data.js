@@ -1,26 +1,22 @@
 /* ============================================================
    EDIT ME
-   This is the one file you'll touch most. Update the agenda,
-   packing list, and worship songs here. The Redeemer Cup pulls
-   live from your Google Sheet (see CONFIG below + the README).
+   Content that changes rarely lives here (speakers, packing list,
+   worship songs). Everything that changes during the year — dates,
+   location, agenda, teams, scores — lives in the Google Sheet and is
+   edited from rbcstaffretreat.com/admin or the sheet itself.
    ============================================================ */
 
-const RETREAT = {
-  dates: "September 10–12, 2026",
-  location: "Country Lake Christian Retreat"
-};
-
-/* The full weekend schedule now lives entirely in the Agenda tab of the
-   Google Sheet (day, date, start/end time, activity) — see agendaCsvUrl
-   in CONFIG below. Nothing to edit here for schedule changes anymore. */
+/* Paste the Apps Script web app URL here (Deploy > Manage deployments,
+   ends in /exec). The public site and /admin both read from it. */
+const API_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
 
 const SPEAKERS = [
-  { role: "Teaching", name: "Norm Millar" },
-  { role: "Worship", name: "Nick & Jill Tynan" }
+  // { role: "Teaching", name: "Name" },
+  // { role: "Worship", name: "Name" }
 ];
 
 const PACKING = {
-  weather: "Forecast as of today: low 72° / high 90°, sunny — but pack a raincoat just in case!",
+  weather: "",   // e.g. "Forecast: low 60° / high 80°"
   attire: [
     "Casual, comfy clothes",
     "Clothes that could get wet (for a competition)",
@@ -39,16 +35,14 @@ const PACKING = {
   ]
 };
 
-/* Add the real setlist here — one object per song.
-   Use \n for line breaks within a verse/chorus.
-   Until this is filled in, the Worship page just shows
-   "Setlist coming soon" instead of a placeholder song.
+/* 2027 setlist — one object per song, \n for line breaks.
+   Empty list shows "Setlist coming soon". */
+const WORSHIP_SONGS = [];
 
-   NOTE: the "lyrics" field below is a placeholder — Claude can't
-   reproduce copyrighted song lyrics, so each entry currently just
-   shows the verse/chorus order. Paste the real lyrics in over that
-   placeholder text (keep the \n line breaks) once you have them. */
-const WORSHIP_SONGS = [
+/* Last year's setlist, kept so songs can be copied up into the 2027
+   list above. Not shown on the site. Remember: use single quotes for
+   any quoted phrase inside a lyric. */
+const WORSHIP_SONGS_2026 = [
   {
     title: "10,000 Reasons",
     lyrics: "Bless the Lord O my soul \nO my soul\nWorship his holy name\nSing like never before\nO my soul\nI'll worship your holy name\n\nThe sun comes up\nIt's a new day dawning\nIt's time to sing your song again\nWhatever may pass and whatever lies before me\nLet me be singing when the evening comes\n\nBless the Lord O my soul \nO my soul\nWorship his holy name\nSing like never before\nO my soul\nI'll worship your holy name\n"
@@ -106,31 +100,3 @@ const WORSHIP_SONGS = [
     lyrics: "A thousand generations falling down in worship\nTo sing the song of ages to the Lamb\nAnd all who've gone before us and all who will believe\nWill sing the song of ages to the Lamb\n\nYour name is the highest\nYour name is the greatest\nYour name stands above them all\nAll thrones and dominions\nAll powers and positions\nYour name stands above them all\n\nAnd the angels cry holy\nAll creation cries holy\nYou are lifted high, holy\nHoly forever\n\nIf you've been forgiven and if you've been redeemed\nSing the song forever to the Lamb\nIf you walk in freedom and if you bear His name\nSing the song forever to the Lamb\nWe'll sing the song forever and amen\n\nAnd the angels cry holy\nAll creation cries holy\nYou are lifted high, holy\nHoly forever\nHear Your people sing holy\nTo the King of kings, holy\nYou will always be holy\nHoly forever\n\nYour name is the highest\nYour name is the greatest\nYour name stands above them all\nAll thrones and dominions\nAll powers and positions\nYour name stands above them all\nJesus\n\nYour name is the highest\nYour name is the greatest\nYour name stands above them all\nAll thrones and dominions\nAll powers and positions\nYour name stands above them all\nAnd the angels cry holy\nAll creation cries holy\nYou are lifted high, holy\nHoly forever\nHear Your people sing holy\nTo the King of kings, holy\nYou will always be holy\nHoly forever\nYou will always be holy\nHoly forever\n"
   }
 ];
-
-/* The Redeemer Cup "guesses" form link — stays locked (not clickable)
-   until the date/time below. Written with an explicit -04:00 (Eastern
-   Daylight Time) offset so it unlocks at the right real-world moment
-   no matter what timezone a visitor's phone is set to. */
-const CUP_FORM = {
-  label: "Final Event - Submit your guesses",
-  url: "https://forms.gle/quwzwCJreSWuhp9n7",
-  unlocksAt: "2026-09-11T19:00:00-04:00" // Friday, Sept 11, 2026, 7:00 PM Eastern
-};
-
-/* ============================================================
-   CONFIG — Redeemer Cup data source
-   Publish two tabs of your Google Sheet to the web as CSV
-   (File > Share > Publish to web > pick the tab > CSV),
-   then paste each resulting URL below. See README.md for the
-   exact column headers each tab needs.
-   ============================================================ */
-const CONFIG = {
-  teamsCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTEr3OYy-lPwKzA-VEfJkTJf-3s6HMEaC57gGQGnIhdT6RS9c8Xr0z2Dz8lW1tSBWuf7i0M7HcoiedI/pub?gid=0&single=true&output=csv",
-  resultsCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTEr3OYy-lPwKzA-VEfJkTJf-3s6HMEaC57gGQGnIhdT6RS9c8Xr0z2Dz8lW1tSBWuf7i0M7HcoiedI/pub?gid=1528073315&single=true&output=csv",
-  historyCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTEr3OYy-lPwKzA-VEfJkTJf-3s6HMEaC57gGQGnIhdT6RS9c8Xr0z2Dz8lW1tSBWuf7i0M7HcoiedI/pub?gid=880893577&single=true&output=csv",
-  agendaCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTEr3OYy-lPwKzA-VEfJkTJf-3s6HMEaC57gGQGnIhdT6RS9c8Xr0z2Dz8lW1tSBWuf7i0M7HcoiedI/pub?gid=1157631561&single=true&output=csv",
-
-  // Points awarded for each finishing place, by index (1st, 2nd, 3rd...).
-  // Any place beyond this list earns the last value.
-  pointsByPlace: [5, 3, 2, 1, 0]
-};

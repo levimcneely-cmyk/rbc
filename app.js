@@ -34,10 +34,7 @@ function showView(name){
   });
   navLinks.forEach(a => a.classList.toggle('active', a.dataset.view === name));
   closeMenu();
-  if (name === 'cup'){
-    loadCup();
-    renderCupFormLink();
-  }
+  if (name === 'cup') loadData();
 }
 
 navLinks.forEach(a => {
@@ -55,33 +52,104 @@ function routeFromHash(){
 window.addEventListener('hashchange', routeFromHash);
 
 /* ============================================================
-   Home: dates, agenda, packing list
+   Data — one feed from the Google Sheet (via Apps Script).
+   Paints instantly from the last saved copy, then refreshes.
    ============================================================ */
-document.getElementById('retreatDates').textContent = RETREAT.dates;
-document.getElementById('retreatLocation').textContent = RETREAT.location;
+const DATA_CACHE_KEY = 'rbcRetreatData2027v1';
+let loading = null;
+
+function loadData(){
+  if (loading) return loading;
+
+  let cached = null;
+  try { cached = JSON.parse(localStorage.getItem(DATA_CACHE_KEY)); } catch (err) { cached = null; }
+  if (cached && cached.ok) renderAll(cached, { fromCache: true });
+
+  if (!apiConfigured()){
+    renderAll(null, { notConfigured: true });
+    return Promise.resolve();
+  }
+
+  loading = fetch(API_URL, { cache: 'no-store' })
+    .then(res => res.json())
+    .then(data => {
+      if (!data || !data.ok) throw new Error((data && data.error) || 'Bad response');
+      renderAll(data, { fromCache: false });
+      try { localStorage.setItem(DATA_CACHE_KEY, JSON.stringify(data)); } catch (err) { /* fine */ }
+    })
+    .catch(() => {
+      if (!cached) renderAll(null, { failed: true });
+      else document.getElementById('cupStatus').textContent = "Couldn't refresh just now — showing the last saved standings.";
+    })
+    .finally(() => { loading = null; });
+  return loading;
+}
+
+function renderAll(data, opts){
+  if (!data){
+    const msg = opts.notConfigured
+      ? 'Schedule coming soon.'
+      : "Couldn't load right now — try again in a minute.";
+    agendaListEl.innerHTML = `<p class="empty-note">${msg}</p>`;
+    document.getElementById('cupStatus').textContent = opts.notConfigured ? 'Standings coming soon.' : msg;
+    return;
+  }
+  renderHeader(data.settings || {});
+  renderAgenda(data.agenda || []);
+  renderCup(data, opts);
+  renderCupFormLink(data.settings || {});
+}
+
+/* ============================================================
+   Home: header + agenda
+   ============================================================ */
+function renderHeader(s){
+  const year = s.year || '';
+  document.getElementById('retreatTitle').textContent = `RBC Staff Retreat ${year}`.trim();
+  document.getElementById('retreatDates').textContent = s.dates || '';
+  document.getElementById('retreatLocation').textContent = s.location || '';
+  document.getElementById('retreatMetaDot').hidden = !(s.dates && s.location);
+  document.title = `RBC Staff Retreat ${year}`.trim();
+}
 
 const dayTabsEl = document.getElementById('dayTabs');
 const agendaListEl = document.getElementById('agendaList');
-
-let agendaData = {};      // day -> [{ time, title }]
-let agendaDayOrder = [];  // days in the order they first appear in the sheet
+let agendaData = {};
+let agendaDayOrder = [];
 let activeAgendaDay = null;
 
 function renderAgendaDay(day){
   activeAgendaDay = day;
   agendaListEl.innerHTML = (agendaData[day] || []).map(item => `
     <div class="timeline__item">
-      <div class="timeline__time">${item.time}</div>
-      <div class="timeline__title">${item.title}</div>
+      <div class="timeline__time">${esc(item.time)}</div>
+      <div class="timeline__title">${esc(item.title)}</div>
     </div>
   `).join('');
 }
 
-function renderDayTabs(){
-  dayTabsEl.innerHTML = agendaDayOrder.map((day, i) =>
-    `<button data-day="${day}" class="${day === activeAgendaDay ? 'active' : (!activeAgendaDay && i === 0 ? 'active' : '')}">${day}</button>`
-  ).join('');
+function renderAgenda(rows){
+  const data = {}, order = [];
+  rows.forEach(r => {
+    if (!r.day) return;
+    if (!data[r.day]){ data[r.day] = []; order.push(r.day); }
+    data[r.day].push({
+      time: r.start && r.end ? `${r.start} – ${r.end}` : (r.start || ''),
+      title: r.activity || ''
+    });
+  });
+  agendaData = data;
+  agendaDayOrder = order;
 
+  if (!order.length){
+    dayTabsEl.innerHTML = '';
+    agendaListEl.innerHTML = '<p class="empty-note">Schedule coming soon.</p>';
+    return;
+  }
+  const day = order.includes(activeAgendaDay) ? activeAgendaDay : order[0];
+  dayTabsEl.innerHTML = order.map(d =>
+    `<button data-day="${esc(d)}" class="${d === day ? 'active' : ''}">${esc(d)}</button>`
+  ).join('');
   dayTabsEl.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
       dayTabsEl.querySelectorAll('button').forEach(b => b.classList.remove('active'));
@@ -89,62 +157,128 @@ function renderDayTabs(){
       renderAgendaDay(btn.dataset.day);
     });
   });
+  renderAgendaDay(day);
 }
 
-function buildAgenda(rows){
-  const data = {};
-  const order = [];
-  rows.forEach(r => {
-    const day = r['day of week'] || r.day;
-    const start = r['time start'] || r.time;
-    if (!day || !start) return;
-    if (!data[day]){ data[day] = []; order.push(day); }
-    const end = r['time end'];
-    data[day].push({
-      time: end ? `${start} – ${end}` : start,
-      title: r.activity || r.title || ''
+/* ============================================================
+   Redeemer Cup
+   ============================================================ */
+function renderCupFormLink(s){
+  const el = document.getElementById('cupFormLink');
+  if (!s.formUrl || !s.formLabel){ el.innerHTML = ''; return; }
+  const opens = s.formOpensAt ? new Date(s.formOpensAt) : null;
+  const unlocked = !opens || Number.isNaN(opens.getTime()) || Date.now() >= opens.getTime();
+  if (unlocked){
+    el.innerHTML = `<a class="form-link form-link--open" href="${esc(s.formUrl)}" target="_blank" rel="noopener">${esc(s.formLabel)}</a>`;
+  } else {
+    const opensText = opens.toLocaleString('en-US', {
+      weekday: 'long', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York'
+    });
+    el.innerHTML = `<span class="form-link form-link--locked">${esc(s.formLabel)} — opens ${esc(opensText)}</span>`;
+  }
+}
+
+function bindAccordions(container){
+  container.querySelectorAll('.event-card__head').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!open));
+      document.getElementById('event-body-' + btn.dataset.i).classList.toggle('open');
     });
   });
-  return { data, order };
 }
 
-const AGENDA_CACHE_KEY = 'redeemerAgendaCsvV1';
+function renderCup(data, { fromCache } = {}){
+  const statusEl = document.getElementById('cupStatus');
+  const boardEl = document.getElementById('overallBoard');
+  const eventsEl = document.getElementById('eventsList');
+  const rosterEl = document.getElementById('rosterList');
+  const historyEl = document.getElementById('historyList');
+  const tiebreakEl = document.getElementById('tiebreakNote');
 
-async function loadAgenda(){
-  if (!CONFIG.agendaCsvUrl || !CONFIG.agendaCsvUrl.startsWith('http')){
-    agendaListEl.innerHTML = '<p class="empty-note">Connect the Agenda sheet tab in js/data.js to show the schedule here.</p>';
-    return;
-  }
+  const table = pointsTable(data.settings);
+  const teams = data.teams || [];
+  const results = data.results || [];
+  const anyScored = results.some(r => r.placement !== '');
+  const ranked = anyScored ? computeStandings(teams, results, table) : [];
 
-  let cachedRows = null;
-  try { cachedRows = JSON.parse(localStorage.getItem(AGENDA_CACHE_KEY)); } catch (err) { cachedRows = null; }
+  statusEl.textContent = anyScored
+    ? (fromCache ? 'Showing the last saved standings…' : 'Standings update live as events are scored.')
+    : 'No results yet — check back once events are scored.';
 
-  if (cachedRows && cachedRows.length){
-    const built = buildAgenda(cachedRows);
-    agendaData = built.data; agendaDayOrder = built.order;
-    renderDayTabs();
-    renderAgendaDay(agendaDayOrder[0]);
+  boardEl.innerHTML = ranked.map((r, i) => `
+    <div class="cup-row cup-row--${i + 1}">
+      <div class="cup-rank">${i + 1}</div>
+      <span class="cup-team">${esc(r.team)}</span>
+      <div class="cup-points">${r.pts} pts</div>
+    </div>
+  `).join('');
+
+  const note = tiebreakText(ranked);
+  tiebreakEl.textContent = note;
+  tiebreakEl.hidden = !note;
+
+  const events = eventsFrom(results);
+  eventsEl.innerHTML = events.length
+    ? events.map((ev, i) => {
+        const scored = ev.rows.filter(r => r.placement !== '').sort((a, b) => Number(a.placement) - Number(b.placement));
+        const rows = scored.map(r => `
+          <div class="event-row">
+            <span class="event-row__team">${esc(r.team)}</span>
+            <span class="event-row__place">${ordinal(r.placement)}</span>
+            <span class="event-row__pts">${pointsForPlace(r.placement, table)} pts</span>
+          </div>`).join('');
+        return `
+          <div class="event-card">
+            <button class="event-card__head" aria-expanded="false" data-i="${i}">
+              <span class="event-card__title">${esc(ev.name)}</span>
+              <span class="event-card__icon">+</span>
+            </button>
+            <div class="event-card__body" id="event-body-${i}">
+              ${rows || '<p class="empty-note">No results posted yet.</p>'}
+            </div>
+          </div>`;
+      }).join('')
+    : '<p class="empty-note">No events posted yet.</p>';
+  bindAccordions(eventsEl);
+
+  if (!teams.length){
+    rosterEl.innerHTML = '<p class="empty-note">No teams posted yet.</p>';
   } else {
-    agendaListEl.innerHTML = '<p class="empty-note">Loading agenda…</p>';
+    const hiddenNote = data.teamsHidden ? 'Teams revealed at the retreat!' : 'Roster coming soon';
+    rosterEl.innerHTML = teams.map((t, i) => `
+      <div class="event-card">
+        <button class="event-card__head" aria-expanded="false" data-i="roster-${i}">
+          <span class="event-card__title">${esc(t.team)}</span>
+          <span class="event-card__icon">+</span>
+        </button>
+        <div class="event-card__body roster-grid" id="event-body-roster-${i}">
+          ${t.members.map(m => `<span>${esc(m)}</span>`).join('') || `<span>${hiddenNote}</span>`}
+        </div>
+      </div>`).join('');
+    bindAccordions(rosterEl);
   }
 
-  try {
-    const rows = await fetchCsv(CONFIG.agendaCsvUrl);
-    const built = buildAgenda(rows);
-    agendaData = built.data; agendaDayOrder = built.order;
-    renderDayTabs();
-    renderAgendaDay(agendaDayOrder.includes(activeAgendaDay) ? activeAgendaDay : agendaDayOrder[0]);
-    try { localStorage.setItem(AGENDA_CACHE_KEY, JSON.stringify(rows)); }
-    catch (err) { /* storage full/unavailable — fine, just skip caching */ }
-  } catch (err){
-    if (!agendaDayOrder.length){
-      agendaListEl.innerHTML = '<p class="empty-note">Couldn\'t load the agenda right now.</p>';
-    }
-  }
+  const history = (data.history || []).slice().sort((a, b) => Number(b.year) - Number(a.year));
+  historyEl.innerHTML = history.length
+    ? history.map(r => {
+        const imgUrl = driveImageUrl(r.url);
+        const img = imgUrl
+          ? `<img class="history-card__img" src="${imgUrl}" alt="${esc(r.year)} Redeemer Cup winners" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('p'),{className:'empty-note',textContent:'Photo couldn\\'t be loaded.'}))">`
+          : '<p class="empty-note">No photo linked for this year.</p>';
+        return `
+          <div class="history-card">
+            <div class="history-card__year">${esc(r.year)}</div>
+            ${img}
+            ${r.winners ? `<div class="history-card__caption">${esc(r.winners)}</div>` : ''}
+          </div>`;
+      }).join('')
+    : '<p class="empty-note">No past winners posted yet.</p>';
 }
 
-loadAgenda();
-
+/* ============================================================
+   Speakers, packing list, worship
+   ============================================================ */
 document.getElementById('speakersList').innerHTML = SPEAKERS.map(s => `
   <p class="speakers__line"><span class="speakers__role">${s.role}</span> ${s.name}</p>
 `).join('');
@@ -189,332 +323,7 @@ worshipListEl.querySelectorAll('.song__head').forEach(btn => {
 });
 
 /* ============================================================
-   Redeemer Cup — pulls from Google Sheets (published as CSV)
-   ============================================================ */
-
-function parseCsv(text){
-  const rows = [];
-  let row = [], field = '', inQuotes = false;
-  for (let i = 0; i < text.length; i++){
-    const c = text[i], next = text[i + 1];
-    if (inQuotes){
-      if (c === '"' && next === '"'){ field += '"'; i++; }
-      else if (c === '"'){ inQuotes = false; }
-      else { field += c; }
-    } else {
-      if (c === '"'){ inQuotes = true; }
-      else if (c === ','){ row.push(field); field = ''; }
-      else if (c === '\n'){ row.push(field); rows.push(row); row = []; field = ''; }
-      else if (c === '\r'){ /* skip */ }
-      else { field += c; }
-    }
-  }
-  if (field.length || row.length){ row.push(field); rows.push(row); }
-  const header = (rows.shift() || []).map(h => h.trim().toLowerCase());
-  return rows
-    .filter(r => r.some(v => v.trim() !== ''))
-    .map(r => Object.fromEntries(header.map((h, idx) => [h, (r[idx] || '').trim()])));
-}
-
-async function fetchCsv(url){
-  const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Sheet fetch failed: ' + res.status);
-  return parseCsv(await res.text());
-}
-
-function pointsForPlace(place){
-  const idx = Number(place) - 1;
-  const table = CONFIG.pointsByPlace;
-  if (idx < 0 || Number.isNaN(idx)) return 0;
-  return idx < table.length ? table[idx] : table[table.length - 1];
-}
-
-// Converts a Google Drive "share" link into a URL that actually renders
-// as an image in an <img> tag (the sharing link itself is an HTML page).
-function driveImageUrl(shareUrl){
-  const match = (shareUrl || '').match(/\/d\/([a-zA-Z0-9_-]+)/) ||
-                (shareUrl || '').match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (!match) return null;
-  return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
-}
-
-function ordinal(n){
-  const num = Number(n);
-  if (Number.isNaN(num)) return String(n);
-  const rem100 = num % 100;
-  if (rem100 >= 11 && rem100 <= 13) return num + 'th';
-  switch (num % 10){
-    case 1: return num + 'st';
-    case 2: return num + 'nd';
-    case 3: return num + 'rd';
-    default: return num + 'th';
-  }
-}
-
-function renderCupFormLink(){
-  const el = document.getElementById('cupFormLink');
-  if (!el || typeof CUP_FORM === 'undefined' || !CUP_FORM.url) return;
-
-  const unlocked = Date.now() >= new Date(CUP_FORM.unlocksAt).getTime();
-
-  if (unlocked){
-    el.innerHTML = `<a class="form-link form-link--open" href="${CUP_FORM.url}" target="_blank" rel="noopener">${CUP_FORM.label}</a>`;
-  } else {
-    const opensText = new Date(CUP_FORM.unlocksAt).toLocaleString('en-US', {
-      weekday: 'long', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York'
-    });
-    el.innerHTML = `<span class="form-link form-link--locked">${CUP_FORM.label} — opens ${opensText}</span>`;
-  }
-}
-
-const CUP_CACHE_KEY = 'redeemerCupCacheV1';
-
-function renderCup(teamsRows, resultsRows, historyRows, { fromCache } = {}){
-  const statusEl = document.getElementById('cupStatus');
-  const boardEl = document.getElementById('overallBoard');
-  const eventsEl = document.getElementById('eventsList');
-  const rosterEl = document.getElementById('rosterList');
-  const historyEl = document.getElementById('historyList');
-
-  // Roster: team -> [members]
-  const roster = {};
-  teamsRows.forEach(r => {
-    const team = r.team || r['team name'];
-    if (!team) return;
-    roster[team] = roster[team] || [];
-    if (r.member) roster[team].push(r.member);
-  });
-
-  // Results: event -> team -> placement (the "Overall" rows are a
-  // sheet-computed tiebreak summary, not a real event — excluded here
-  // so they don't show as a 5th event card or get double-counted).
-  const byEvent = {};
-  const totals = {};
-  const placementsByTeam = {};
-  resultsRows.forEach(r => {
-    const event = r.event, team = r.team, place = r.placement || r.place;
-    if (!event || !team || event.toLowerCase() === 'overall') return;
-    byEvent[event] = byEvent[event] || {};
-    byEvent[event][team] = place;
-    const pts = pointsForPlace(place);
-    totals[team] = (totals[team] || 0) + pts;
-    if (place !== undefined && place !== ''){
-      const numPlace = Number(place);
-      if (!Number.isNaN(numPlace)){
-        placementsByTeam[team] = placementsByTeam[team] || [];
-        placementsByTeam[team].push(numPlace);
-      }
-    }
-    if (!(team in roster)) roster[team] = [];
-  });
-
-  const avgPlacement = {};
-  Object.keys(placementsByTeam).forEach(team => {
-    const list = placementsByTeam[team];
-    avgPlacement[team] = list.reduce((a, b) => a + b, 0) / list.length;
-  });
-
-  const ranked = Object.entries(totals).sort((a, b) => {
-    if (b[1] !== a[1]) return b[1] - a[1];
-    const avgA = avgPlacement[a[0]] ?? Infinity;
-    const avgB = avgPlacement[b[0]] ?? Infinity;
-    return avgA - avgB;
-  });
-
-  statusEl.textContent = ranked.length
-    ? (fromCache ? 'Showing the last saved standings…' : 'Standings update automatically from the team sheet.')
-    : 'No results yet — check back once events are scored.';
-
-  boardEl.innerHTML = ranked.map(([team, pts], i) => `
-    <div class="cup-row cup-row--${i + 1}">
-      <div class="cup-rank">${i + 1}</div>
-      <span class="cup-team">${team}</span>
-      <div class="cup-points">${pts} pts</div>
-    </div>
-  `).join('');
-
-  // Only explain the tiebreak when it actually decided 1st place —
-  // ties further down the standings don't matter enough to call out.
-  const tiebreakNoteEl = document.getElementById('tiebreakNote');
-  let firstPlaceTieEnd = 0;
-  while (firstPlaceTieEnd + 1 < ranked.length && ranked[firstPlaceTieEnd + 1][1] === ranked[0][1]) firstPlaceTieEnd++;
-
-  if (firstPlaceTieEnd > 0 && ranked[0][1] > 0){
-    const tiedGroup = ranked.slice(0, firstPlaceTieEnd + 1);
-    const pts = tiedGroup[0][1];
-    const parts = tiedGroup.map(([team]) => {
-      const avg = avgPlacement[team];
-      return `${team} (avg. placement ${avg !== undefined ? avg.toFixed(1) : '—'})`;
-    });
-    const winner = tiedGroup[0][0];
-    tiebreakNoteEl.textContent = `${parts.join(' and ')} tied at ${pts} pts — ${winner} wins the tiebreaker with the better average event placement.`;
-    tiebreakNoteEl.hidden = false;
-  } else {
-    tiebreakNoteEl.textContent = '';
-    tiebreakNoteEl.hidden = true;
-  }
-
-  // Event names come straight from whatever's typed in the sheet's
-  // "Event" column — in the order they first appear, so "Event 1" shows
-  // before "Event 2" as long as that's the order rows were entered.
-  // ("Overall" is a sheet-computed tiebreak summary, not a real event.)
-  const eventNames = [];
-  resultsRows.forEach(r => {
-    if (r.event && r.event.toLowerCase() !== 'overall' && !eventNames.includes(r.event)) {
-      eventNames.push(r.event);
-    }
-  });
-
-  eventsEl.innerHTML = eventNames.length
-    ? eventNames.map((name, i) => {
-        const placements = byEvent[name] || {};
-        const rows = Object.entries(placements)
-          .sort((a, b) => Number(a[1]) - Number(b[1]))
-          .map(([team, place]) => `
-            <div class="event-row">
-              <span class="event-row__team">${team}</span>
-              <span class="event-row__place">${Number.isNaN(Number(place)) ? '—' : ordinal(place)}</span>
-              <span class="event-row__pts">${pointsForPlace(place)} pts</span>
-            </div>
-          `)
-          .join('');
-        return `
-          <div class="event-card">
-            <button class="event-card__head" aria-expanded="false" data-i="${i}">
-              <span class="event-card__title">${name}</span>
-              <span class="event-card__icon">+</span>
-            </button>
-            <div class="event-card__body" id="event-body-${i}">
-              ${rows || '<p class="empty-note">No results posted yet.</p>'}
-            </div>
-          </div>
-        `;
-      }).join('')
-    : '<p class="empty-note">No events posted yet.</p>';
-
-  eventsEl.querySelectorAll('.event-card__head').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const open = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', String(!open));
-      document.getElementById('event-body-' + btn.dataset.i).classList.toggle('open');
-    });
-  });
-
-  const teamNames = Object.keys(roster).sort();
-  if (!teamNames.length){
-    rosterEl.innerHTML = '<p class="empty-note">No teams posted yet.</p>';
-  } else {
-    rosterEl.innerHTML = teamNames.map((team, i) => `
-      <div class="event-card">
-        <button class="event-card__head" aria-expanded="false" data-i="roster-${i}">
-          <span class="event-card__title">${team}</span>
-          <span class="event-card__icon">+</span>
-        </button>
-        <div class="event-card__body roster-grid" id="event-body-roster-${i}">
-          ${(roster[team] || []).map(m => `<span>${m}</span>`).join('') || '<span>Roster coming soon</span>'}
-        </div>
-      </div>
-    `).join('');
-
-    rosterEl.querySelectorAll('.event-card__head').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const open = btn.getAttribute('aria-expanded') === 'true';
-        btn.setAttribute('aria-expanded', String(!open));
-        document.getElementById('event-body-' + btn.dataset.i).classList.toggle('open');
-      });
-    });
-  }
-
-  const historyItems = historyRows
-    .filter(r => r.year)
-    .sort((a, b) => Number(b.year) - Number(a.year));
-
-  if (!historyItems.length){
-    historyEl.innerHTML = '<p class="empty-note">No past winners posted yet.</p>';
-  } else {
-    historyEl.innerHTML = historyItems.map(r => {
-      const imgUrl = driveImageUrl(r.url);
-      const img = imgUrl
-        ? `<img class="history-card__img" src="${imgUrl}" alt="${r.year} Redeemer Cup winners" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('p'),{className:'empty-note',textContent:'Photo couldn\\'t be loaded.'}))">`
-        : `<p class="empty-note">No photo linked for this year.</p>`;
-      return `
-        <div class="history-card">
-          <div class="history-card__year">${r.year}</div>
-          ${img}
-          ${r.winners ? `<div class="history-card__caption">${r.winners}</div>` : ''}
-        </div>
-      `;
-    }).join('');
-  }
-}
-
-async function loadCup(){
-  const statusEl = document.getElementById('cupStatus');
-  const boardEl = document.getElementById('overallBoard');
-  const eventsEl = document.getElementById('eventsList');
-  const rosterEl = document.getElementById('rosterList');
-  const historyEl = document.getElementById('historyList');
-
-  const notConfigured =
-    !CONFIG.teamsCsvUrl.startsWith('http') || !CONFIG.resultsCsvUrl.startsWith('http');
-
-  if (notConfigured){
-    statusEl.textContent = '';
-    boardEl.innerHTML = '';
-    eventsEl.innerHTML = `<p class="empty-note">Connect your Google Sheet to see standings here —
-      add the two published CSV links in js/data.js (see README.md).</p>`;
-    rosterEl.innerHTML = '';
-    historyEl.innerHTML = '';
-    document.getElementById('tiebreakNote').hidden = true;
-    return;
-  }
-
-  // Paint instantly from last-known data (if any) while we fetch fresh data
-  // in the background — makes repeat visits feel immediate even though
-  // Google's published-CSV endpoint itself can be slow.
-  let cached = null;
-  try { cached = JSON.parse(localStorage.getItem(CUP_CACHE_KEY)); } catch (err) { cached = null; }
-
-  if (cached){
-    renderCup(cached.teamsRows, cached.resultsRows, cached.historyRows, { fromCache: true });
-  } else {
-    statusEl.textContent = 'Loading standings…';
-    boardEl.innerHTML = '<p class="empty-note">Loading…</p>';
-    eventsEl.innerHTML = '<p class="empty-note">Loading…</p>';
-    rosterEl.innerHTML = '<p class="empty-note">Loading…</p>';
-    historyEl.innerHTML = '<p class="empty-note">Loading…</p>';
-  }
-
-  try {
-    const [teamsRows, resultsRows, historyRows] = await Promise.all([
-      fetchCsv(CONFIG.teamsCsvUrl),
-      fetchCsv(CONFIG.resultsCsvUrl),
-      CONFIG.historyCsvUrl && CONFIG.historyCsvUrl.startsWith('http')
-        ? fetchCsv(CONFIG.historyCsvUrl).catch(() => [])
-        : Promise.resolve([])
-    ]);
-
-    renderCup(teamsRows, resultsRows, historyRows, { fromCache: false });
-
-    try {
-      localStorage.setItem(CUP_CACHE_KEY, JSON.stringify({ teamsRows, resultsRows, historyRows }));
-    } catch (err) { /* storage full or unavailable — fine, just skip caching */ }
-
-  } catch (err){
-    if (!cached){
-      statusEl.textContent = "Couldn't load the sheet right now — double-check the published CSV links in js/data.js.";
-      boardEl.innerHTML = '';
-      eventsEl.innerHTML = '';
-      rosterEl.innerHTML = '';
-      historyEl.innerHTML = '';
-      document.getElementById('tiebreakNote').hidden = true;
-    } else {
-      statusEl.textContent = "Couldn't refresh just now — showing the last saved standings.";
-    }
-  }
-}
-
-/* ============================================================
    Init
    ============================================================ */
+loadData();
 routeFromHash();
