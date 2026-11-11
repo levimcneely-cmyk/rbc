@@ -8,7 +8,7 @@
 
 /* Paste the Apps Script web app URL here (Deploy > Manage deployments,
    ends in /exec). The public site and /admin both read from it. */
-const API_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
+const API_URL = "https://script.google.com/macros/s/AKfycbz9CNBbkhoL4Sr0ytHBdi_0-lg69Ur1jgU4drmRzcqAkpPl-6CCvnKqLO_IYinFkyHa/exec";
 
 const SPEAKERS = [
   // { role: "Teaching", name: "Name" },
